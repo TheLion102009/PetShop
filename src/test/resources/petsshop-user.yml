@@ -1,0 +1,951 @@
+command: /petsshop
+hideHud: true
+hideCrosshair: true
+cursorMode: FROZEN
+scrollables:
+  - id: rows
+    position:
+      x: 404
+      'y': 286
+    size:
+      width: 1108
+      height: 486
+    step: 240
+    thumbId: rows_thumb
+    trackId: rows_track
+elements:
+  - type: IMAGE
+    id: panel_edge
+    sprite: rect.png
+    color: '#6B7894'
+    position: { x: 960, y: 540 }
+    size: { width: 1128, height: 708 }
+    layer: 1
+    alpha: 1
+    corner: { shape: CUT, size: 9 }
+    scrollRegion: none
+  - type: IMAGE
+    id: panel
+    sprite: rect.png
+    color: '#000000'
+    position: { x: 960, y: 540 }
+    size: { width: 1120, height: 700 }
+    layer: 2
+    alpha: 0.922
+    corner: { shape: CUT, size: 8 }
+    scrollRegion: none
+  - type: TEXT
+    id: title
+    text: Pet shop
+    spriteFont: minecraft
+    glyphScale: 0.5
+    color: '#F2F4F8'
+    position: { x: 428, y: 854 }
+    size: { width: 176, height: 32 }
+    layer: 4
+    anchor: { x: LEFT }
+    textAlignment: LEFT
+    scrollRegion: none
+  - type: IMAGE
+    id: title_rule
+    sprite: rect.png
+    color: '#4A5263'
+    position: { x: 960, y: 822 }
+    size: { width: 1080, height: 2 }
+    layer: 3
+    scrollRegion: none
+  - type: IMAGE
+    id: card_1_edge
+    sprite: rect.png
+    color: '#5A6273'
+    position: { x: 590, y: 668 }
+    size: { width: 338, height: 228 }
+    layer: 5
+    corner: { shape: CUT, size: 9 }
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: IMAGE
+    id: card_1
+    sprite: rect.png
+    color: '#161820'
+    position: { x: 590, y: 668 }
+    size: { width: 330, height: 220 }
+    layer: 6
+    corner: { shape: CUT, size: 8 }
+    actions:
+      - { type: RUN_COMMAND, target: petshop click cubee-arctic_witch }
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: ITEM
+    id: card_1_item
+    itemId: minecraft:acacia_leaves
+    position: { x: 590, y: 704 }
+    size: { width: 88, height: 88 }
+    layer: 7
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: TEXT
+    id: card_1_name
+    text: Arctic Witch Cubee
+    spriteFont: minecraft
+    glyphScale: 0.375
+    color: '#F2F4F8'
+    position: { x: 590, y: 622 }
+    size: { width: 276, height: 24 }
+    layer: 7
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: TEXT
+    id: card_1_price
+    text: '%petshop_label_cubee-arctic_witch%'
+    spriteFont: minecraft
+    glyphScale: 0.375
+    color: '#FFC24A'
+    position: { x: 590, y: 590 }
+    size: { width: 552, height: 24 }
+    layer: 7
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: IMAGE
+    id: card_2_edge
+    sprite: rect.png
+    color: '#5A6273'
+    position: { x: 945, y: 668 }
+    size: { width: 338, height: 228 }
+    layer: 5
+    corner: { shape: CUT, size: 9 }
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: IMAGE
+    id: card_2
+    sprite: rect.png
+    color: '#161820'
+    position: { x: 945, y: 668 }
+    size: { width: 330, height: 220 }
+    layer: 6
+    corner: { shape: CUT, size: 8 }
+    actions:
+      - { type: RUN_COMMAND, target: petshop click cubee-earth }
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: ITEM
+    id: card_2_item
+    itemId: PLAYER_HEAD
+    position: { x: 945, y: 704 }
+    size: { width: 88, height: 88 }
+    layer: 7
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: TEXT
+    id: card_2_name
+    text: Earth Cubee
+    spriteFont: minecraft
+    glyphScale: 0.375
+    color: '#F2F4F8'
+    position: { x: 945, y: 622 }
+    size: { width: 186, height: 24 }
+    layer: 7
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: TEXT
+    id: card_2_price
+    text: '%petshop_label_cubee-earth%'
+    spriteFont: minecraft
+    glyphScale: 0.375
+    color: '#FFC24A'
+    position: { x: 945, y: 590 }
+    size: { width: 456, height: 24 }
+    layer: 7
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: IMAGE
+    id: card_3_edge
+    sprite: rect.png
+    color: '#5A6273'
+    position: { x: 1300, y: 668 }
+    size: { width: 338, height: 228 }
+    layer: 5
+    corner: { shape: CUT, size: 9 }
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: IMAGE
+    id: card_3
+    sprite: rect.png
+    color: '#161820'
+    position: { x: 1300, y: 668 }
+    size: { width: 330, height: 220 }
+    layer: 6
+    corner: { shape: CUT, size: 8 }
+    actions:
+      - { type: RUN_COMMAND, target: petshop click cubee-ebony_cat }
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: ITEM
+    id: card_3_item
+    itemId: nexo:cubees-icon-cat
+    position: { x: 1300, y: 690 }
+    size: { width: 155, height: 155 }
+    layer: 7
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: TEXT
+    id: card_3_name
+    text: Ebony Cat Cubee
+    spriteFont: minecraft
+    glyphScale: 0.375
+    color: '#F2F4F8'
+    position: { x: 1300, y: 586 }
+    size: { width: 252, height: 24 }
+    layer: 7
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: IMAGE
+    id: card_4_edge
+    sprite: rect.png
+    color: '#5A6273'
+    position: { x: 590, y: 428 }
+    size: { width: 338, height: 228 }
+    layer: 5
+    corner: { shape: CUT, size: 9 }
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: IMAGE
+    id: card_4
+    sprite: rect.png
+    color: '#161820'
+    position: { x: 590, y: 428 }
+    size: { width: 330, height: 220 }
+    layer: 6
+    corner: { shape: CUT, size: 8 }
+    actions:
+      - { type: RUN_COMMAND, target: petshop click cubee-forest_keeper }
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: ITEM
+    id: card_4_item
+    itemId: PLAYER_HEAD
+    position: { x: 590, y: 464 }
+    size: { width: 88, height: 88 }
+    layer: 7
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: TEXT
+    id: card_4_name
+    text: Forest Keeper Cubee
+    spriteFont: minecraft
+    glyphScale: 0.375
+    color: '#F2F4F8'
+    position: { x: 590, y: 382 }
+    size: { width: 324, height: 24 }
+    layer: 7
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: TEXT
+    id: card_4_price
+    text: '%petshop_label_cubee-forest_keeper%'
+    spriteFont: minecraft
+    glyphScale: 0.375
+    color: '#FFC24A'
+    position: { x: 590, y: 350 }
+    size: { width: 594, height: 24 }
+    layer: 7
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: IMAGE
+    id: card_5_edge
+    sprite: rect.png
+    color: '#5A6273'
+    position: { x: 945, y: 428 }
+    size: { width: 338, height: 228 }
+    layer: 5
+    corner: { shape: CUT, size: 9 }
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: IMAGE
+    id: card_5
+    sprite: rect.png
+    color: '#161820'
+    position: { x: 945, y: 428 }
+    size: { width: 330, height: 220 }
+    layer: 6
+    corner: { shape: CUT, size: 8 }
+    actions:
+      - { type: RUN_COMMAND, target: petshop click cubee-gothic_hag }
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: ITEM
+    id: card_5_item
+    itemId: PLAYER_HEAD
+    position: { x: 945, y: 464 }
+    size: { width: 88, height: 88 }
+    layer: 7
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: TEXT
+    id: card_5_name
+    text: Gothic Hag Cubee
+    spriteFont: minecraft
+    glyphScale: 0.375
+    color: '#F2F4F8'
+    position: { x: 945, y: 382 }
+    size: { width: 258, height: 24 }
+    layer: 7
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: TEXT
+    id: card_5_price
+    text: '%petshop_label_cubee-gothic_hag%'
+    spriteFont: minecraft
+    glyphScale: 0.375
+    color: '#FFC24A'
+    position: { x: 945, y: 350 }
+    size: { width: 534, height: 24 }
+    layer: 7
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: IMAGE
+    id: card_6_edge
+    sprite: rect.png
+    color: '#5A6273'
+    position: { x: 1300, y: 428 }
+    size: { width: 338, height: 228 }
+    layer: 5
+    corner: { shape: CUT, size: 9 }
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: IMAGE
+    id: card_6
+    sprite: rect.png
+    color: '#161820'
+    position: { x: 1300, y: 428 }
+    size: { width: 330, height: 220 }
+    layer: 6
+    corner: { shape: CUT, size: 8 }
+    actions:
+      - { type: RUN_COMMAND, target: petshop click cubee-jupiter }
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: ITEM
+    id: card_6_item
+    itemId: nexo:cubees-icon-jupiter
+    position: { x: 1300, y: 464 }
+    size: { width: 128, height: 128 }
+    layer: 7
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: TEXT
+    id: card_6_name
+    text: Jupiter Cubee
+    spriteFont: minecraft
+    glyphScale: 0.375
+    color: '#F2F4F8'
+    position: { x: 1300, y: 382 }
+    size: { width: 210, height: 24 }
+    layer: 7
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: TEXT
+    id: card_6_price
+    text: '%petshop_label_cubee-jupiter%'
+    spriteFont: minecraft
+    glyphScale: 0.375
+    color: '#FFC24A'
+    position: { x: 1300, y: 350 }
+    size: { width: 480, height: 24 }
+    layer: 7
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: IMAGE
+    id: card_7_edge
+    sprite: rect.png
+    color: '#5A6273'
+    position: { x: 590, y: 188 }
+    size: { width: 338, height: 228 }
+    layer: 5
+    corner: { shape: CUT, size: 9 }
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: IMAGE
+    id: card_7
+    sprite: rect.png
+    color: '#161820'
+    position: { x: 590, y: 188 }
+    size: { width: 330, height: 220 }
+    layer: 6
+    corner: { shape: CUT, size: 8 }
+    actions:
+      - { type: RUN_COMMAND, target: petshop click cubee-mars }
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: ITEM
+    id: card_7_item
+    itemId: PLAYER_HEAD
+    position: { x: 590, y: 224 }
+    size: { width: 88, height: 88 }
+    layer: 7
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: TEXT
+    id: card_7_name
+    text: Mars Cubee
+    spriteFont: minecraft
+    glyphScale: 0.375
+    color: '#F2F4F8'
+    position: { x: 590, y: 142 }
+    size: { width: 174, height: 24 }
+    layer: 7
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: TEXT
+    id: card_7_price
+    text: '%petshop_label_cubee-mars%'
+    spriteFont: minecraft
+    glyphScale: 0.375
+    color: '#FFC24A'
+    position: { x: 590, y: 110 }
+    size: { width: 444, height: 24 }
+    layer: 7
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: IMAGE
+    id: card_8_edge
+    sprite: rect.png
+    color: '#5A6273'
+    position: { x: 945, y: 188 }
+    size: { width: 338, height: 228 }
+    layer: 5
+    corner: { shape: CUT, size: 9 }
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: IMAGE
+    id: card_8
+    sprite: rect.png
+    color: '#161820'
+    position: { x: 945, y: 188 }
+    size: { width: 330, height: 220 }
+    layer: 6
+    corner: { shape: CUT, size: 8 }
+    actions:
+      - { type: RUN_COMMAND, target: petshop click cubee-meowgician }
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: ITEM
+    id: card_8_item
+    itemId: PLAYER_HEAD
+    position: { x: 945, y: 224 }
+    size: { width: 88, height: 88 }
+    layer: 7
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: TEXT
+    id: card_8_name
+    text: Meowgician Cubee
+    spriteFont: minecraft
+    glyphScale: 0.375
+    color: '#F2F4F8'
+    position: { x: 945, y: 142 }
+    size: { width: 258, height: 24 }
+    layer: 7
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: TEXT
+    id: card_8_price
+    text: '%petshop_label_cubee-meowgician%'
+    spriteFont: minecraft
+    glyphScale: 0.375
+    color: '#FFC24A'
+    position: { x: 945, y: 110 }
+    size: { width: 528, height: 24 }
+    layer: 7
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: IMAGE
+    id: card_9_edge
+    sprite: rect.png
+    color: '#5A6273'
+    position: { x: 1300, y: 188 }
+    size: { width: 338, height: 228 }
+    layer: 5
+    corner: { shape: CUT, size: 9 }
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: IMAGE
+    id: card_9
+    sprite: rect.png
+    color: '#161820'
+    position: { x: 1300, y: 188 }
+    size: { width: 330, height: 220 }
+    layer: 6
+    corner: { shape: CUT, size: 8 }
+    actions:
+      - { type: RUN_COMMAND, target: petshop click cubee-pluto }
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: ITEM
+    id: card_9_item
+    itemId: PLAYER_HEAD
+    position: { x: 1300, y: 224 }
+    size: { width: 88, height: 88 }
+    layer: 7
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: TEXT
+    id: card_9_name
+    text: Pluto Cubee
+    spriteFont: minecraft
+    glyphScale: 0.375
+    color: '#F2F4F8'
+    position: { x: 1300, y: 142 }
+    size: { width: 177, height: 24 }
+    layer: 7
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: TEXT
+    id: card_9_price
+    text: '%petshop_label_cubee-pluto%'
+    spriteFont: minecraft
+    glyphScale: 0.375
+    color: '#FFC24A'
+    position: { x: 1300, y: 110 }
+    size: { width: 447, height: 24 }
+    layer: 7
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: IMAGE
+    id: card_10_edge
+    sprite: rect.png
+    color: '#5A6273'
+    position: { x: 590, y: -52 }
+    size: { width: 338, height: 228 }
+    layer: 5
+    corner: { shape: CUT, size: 9 }
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: IMAGE
+    id: card_10
+    sprite: rect.png
+    color: '#161820'
+    position: { x: 590, y: -52 }
+    size: { width: 330, height: 220 }
+    layer: 6
+    corner: { shape: CUT, size: 8 }
+    actions:
+      - { type: RUN_COMMAND, target: petshop click cubee-saturn }
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: ITEM
+    id: card_10_item
+    itemId: PLAYER_HEAD
+    position: { x: 590, y: -16 }
+    size: { width: 88, height: 88 }
+    layer: 7
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: TEXT
+    id: card_10_name
+    text: Saturn Cubee
+    spriteFont: minecraft
+    glyphScale: 0.375
+    color: '#F2F4F8'
+    position: { x: 590, y: -98 }
+    size: { width: 204, height: 24 }
+    layer: 7
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: TEXT
+    id: card_10_price
+    text: '%petshop_label_cubee-saturn%'
+    spriteFont: minecraft
+    glyphScale: 0.375
+    color: '#FFC24A'
+    position: { x: 590, y: -130 }
+    size: { width: 474, height: 24 }
+    layer: 7
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: IMAGE
+    id: card_11_edge
+    sprite: rect.png
+    color: '#5A6273'
+    position: { x: 945, y: -52 }
+    size: { width: 338, height: 228 }
+    layer: 5
+    corner: { shape: CUT, size: 9 }
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: IMAGE
+    id: card_11
+    sprite: rect.png
+    color: '#161820'
+    position: { x: 945, y: -52 }
+    size: { width: 330, height: 220 }
+    layer: 6
+    corner: { shape: CUT, size: 8 }
+    actions:
+      - { type: RUN_COMMAND, target: petshop click cubee-skelly_warlock }
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: ITEM
+    id: card_11_item
+    itemId: PLAYER_HEAD
+    position: { x: 945, y: -16 }
+    size: { width: 88, height: 88 }
+    layer: 7
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: TEXT
+    id: card_11_name
+    text: Skelly Warlock Cubee
+    spriteFont: minecraft
+    glyphScale: 0.375
+    color: '#F2F4F8'
+    position: { x: 945, y: -98 }
+    size: { width: 315, height: 24 }
+    layer: 7
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: TEXT
+    id: card_11_price
+    text: '%petshop_label_cubee-skelly_warlock%'
+    spriteFont: minecraft
+    glyphScale: 0.375
+    color: '#FFC24A'
+    position: { x: 945, y: -130 }
+    size: { width: 591, height: 24 }
+    layer: 7
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: IMAGE
+    id: card_12_edge
+    sprite: rect.png
+    color: '#5A6273'
+    position: { x: 1300, y: -52 }
+    size: { width: 338, height: 228 }
+    layer: 5
+    corner: { shape: CUT, size: 9 }
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: IMAGE
+    id: card_12
+    sprite: rect.png
+    color: '#161820'
+    position: { x: 1300, y: -52 }
+    size: { width: 330, height: 220 }
+    layer: 6
+    corner: { shape: CUT, size: 8 }
+    actions:
+      - { type: RUN_COMMAND, target: petshop click cubee-soul_weaver }
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: ITEM
+    id: card_12_item
+    itemId: PLAYER_HEAD
+    position: { x: 1300, y: -16 }
+    size: { width: 88, height: 88 }
+    layer: 7
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: TEXT
+    id: card_12_name
+    text: Soul Weaver Cubee
+    spriteFont: minecraft
+    glyphScale: 0.375
+    color: '#F2F4F8'
+    position: { x: 1300, y: -98 }
+    size: { width: 285, height: 24 }
+    layer: 7
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: TEXT
+    id: card_12_price
+    text: '%petshop_label_cubee-soul_weaver%'
+    spriteFont: minecraft
+    glyphScale: 0.375
+    color: '#FFC24A'
+    position: { x: 1300, y: -130 }
+    size: { width: 561, height: 24 }
+    layer: 7
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: IMAGE
+    id: card_13_edge
+    sprite: rect.png
+    color: '#5A6273'
+    position: { x: 590, y: -292 }
+    size: { width: 338, height: 228 }
+    layer: 5
+    corner: { shape: CUT, size: 9 }
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: IMAGE
+    id: card_13
+    sprite: rect.png
+    color: '#161820'
+    position: { x: 590, y: -292 }
+    size: { width: 330, height: 220 }
+    layer: 6
+    corner: { shape: CUT, size: 8 }
+    actions:
+      - { type: RUN_COMMAND, target: petshop click cubee-sun }
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: ITEM
+    id: card_13_item
+    itemId: PLAYER_HEAD
+    position: { x: 590, y: -256 }
+    size: { width: 88, height: 88 }
+    layer: 7
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: TEXT
+    id: card_13_name
+    text: Sun Cubee
+    spriteFont: minecraft
+    glyphScale: 0.375
+    color: '#F2F4F8'
+    position: { x: 590, y: -338 }
+    size: { width: 156, height: 24 }
+    layer: 7
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: TEXT
+    id: card_13_price
+    text: '%petshop_label_cubee-sun%'
+    spriteFont: minecraft
+    glyphScale: 0.375
+    color: '#FFC24A'
+    position: { x: 590, y: -370 }
+    size: { width: 426, height: 24 }
+    layer: 7
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: IMAGE
+    id: card_14_edge
+    sprite: rect.png
+    color: '#5A6273'
+    position: { x: 945, y: -292 }
+    size: { width: 338, height: 228 }
+    layer: 5
+    corner: { shape: CUT, size: 9 }
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: IMAGE
+    id: card_14
+    sprite: rect.png
+    color: '#161820'
+    position: { x: 945, y: -292 }
+    size: { width: 330, height: 220 }
+    layer: 6
+    corner: { shape: CUT, size: 8 }
+    actions:
+      - { type: RUN_COMMAND, target: petshop click cubee-uranus }
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: ITEM
+    id: card_14_item
+    itemId: PLAYER_HEAD
+    position: { x: 945, y: -256 }
+    size: { width: 88, height: 88 }
+    layer: 7
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: TEXT
+    id: card_14_name
+    text: Uranus Cubee
+    spriteFont: minecraft
+    glyphScale: 0.375
+    color: '#F2F4F8'
+    position: { x: 945, y: -338 }
+    size: { width: 210, height: 24 }
+    layer: 7
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: TEXT
+    id: card_14_price
+    text: '%petshop_label_cubee-uranus%'
+    spriteFont: minecraft
+    glyphScale: 0.375
+    color: '#FFC24A'
+    position: { x: 945, y: -370 }
+    size: { width: 480, height: 24 }
+    layer: 7
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: IMAGE
+    id: card_15_edge
+    sprite: rect.png
+    color: '#5A6273'
+    position: { x: 1300, y: -292 }
+    size: { width: 338, height: 228 }
+    layer: 5
+    corner: { shape: CUT, size: 9 }
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: IMAGE
+    id: card_15
+    sprite: rect.png
+    color: '#161820'
+    position: { x: 1300, y: -292 }
+    size: { width: 330, height: 220 }
+    layer: 6
+    corner: { shape: CUT, size: 8 }
+    actions:
+      - { type: RUN_COMMAND, target: petshop click cubee-venus }
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: ITEM
+    id: card_15_item
+    itemId: PLAYER_HEAD
+    position: { x: 1300, y: -256 }
+    size: { width: 88, height: 88 }
+    layer: 7
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: TEXT
+    id: card_15_name
+    text: Venus Cubee
+    spriteFont: minecraft
+    glyphScale: 0.375
+    color: '#F2F4F8'
+    position: { x: 1300, y: -338 }
+    size: { width: 192, height: 24 }
+    layer: 7
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: TEXT
+    id: card_15_price
+    text: '%petshop_label_cubee-venus%'
+    spriteFont: minecraft
+    glyphScale: 0.375
+    color: '#FFC24A'
+    position: { x: 1300, y: -370 }
+    size: { width: 462, height: 24 }
+    layer: 7
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: IMAGE
+    id: card_16_edge
+    sprite: rect.png
+    color: '#5A6273'
+    position: { x: 590, y: -532 }
+    size: { width: 338, height: 228 }
+    layer: 5
+    corner: { shape: CUT, size: 9 }
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: IMAGE
+    id: card_16
+    sprite: rect.png
+    color: '#161820'
+    position: { x: 590, y: -532 }
+    size: { width: 330, height: 220 }
+    layer: 6
+    corner: { shape: CUT, size: 8 }
+    actions:
+      - { type: RUN_COMMAND, target: petshop click cubee-wishing_teddy }
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: ITEM
+    id: card_16_item
+    itemId: PLAYER_HEAD
+    position: { x: 590, y: -496 }
+    size: { width: 88, height: 88 }
+    layer: 7
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: TEXT
+    id: card_16_name
+    text: Wishing Teddy Cubee
+    spriteFont: minecraft
+    glyphScale: 0.375
+    color: '#F2F4F8'
+    position: { x: 590, y: -578 }
+    size: { width: 306, height: 24 }
+    layer: 7
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: TEXT
+    id: card_16_price
+    text: '%petshop_label_cubee-wishing_teddy%'
+    spriteFont: minecraft
+    glyphScale: 0.375
+    color: '#FFC24A'
+    position: { x: 590, y: -610 }
+    size: { width: 576, height: 24 }
+    layer: 7
+    scrollRegion: rows
+    scrollGroup: row1
+  - type: TEXT
+    id: balance_label
+    text: Balance
+    spriteFont: minecraft
+    glyphScale: 0.375
+    color: '#B4B8C2'
+    position: { x: 430, y: 248 }
+    size: { width: 117, height: 24 }
+    layer: 4
+    anchor: { x: LEFT }
+    textAlignment: LEFT
+    scrollRegion: none
+  - type: TEXT
+    id: balance
+    text: '%playerpoints_points_formatted% coins'
+    spriteFont: minecraft
+    glyphScale: 0.375
+    color: '#FFC24A'
+    position: { x: 559, y: 248 }
+    size: { width: 588, height: 24 }
+    layer: 4
+    anchor: { x: LEFT }
+    textAlignment: LEFT
+    scrollRegion: none
+  - type: IMAGE
+    id: rows_track
+    sprite: rect.png
+    color: '#5A6273'
+    position: { x: 1492, y: 794 }
+    size: { width: 16, height: 486 }
+    layer: 13
+    corner: { shape: CUT, size: 4 }
+    anchor: { x: LEFT, y: TOP }
+    followZoom: false
+  - type: IMAGE
+    id: rows_thumb
+    sprite: rect.png
+    color: '#FFC24A'
+    position: { x: 1492, y: 794 }
+    size: { width: 16, height: 174 }
+    layer: 14
+    corner: { shape: CUT, size: 4 }
+    anchor: { x: LEFT, y: TOP }
+    followZoom: false
+  - type: IMAGE
+    position: { x: 1386, y: 236 }
+    z: 10000
+    size: { width: 200, height: 100 }
+    layer: 4
+    alpha: 1
+    font: carl
+    anchor: { x: CENTER, y: CENTER }
+    followScale: true
+    followZoom: true
+    id: image_1
+    scrollRegion: none
+    sprite: backbutton.png
+    actions:
+      - { type: OPEN, target: mainmenu }
+    hoverActions:
+      - { type: PLAY_CLIP, clip: grow }
+    unhoverActions:
+      - { type: PLAY_CLIP, clip: shrink }
+    timelines:
+      grow:
+        SCALE:
+          - { size: { width: 210, height: 105 }, atTick: 3 }
+      shrink:
+        SCALE:
+          - { size: { width: 200, height: 100 }, atTick: 3 }
+hideVanilla:
+  - HEARTS
+  - HOTBAR
+  - HAND

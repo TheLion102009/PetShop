@@ -41,11 +41,14 @@ final class Database {
     });
     private volatile Settings.Db config;
     private volatile boolean healthy;
+    private volatile String lastError;
+    private volatile Runnable onConnect;
     private Connection connection;
     private Settings.Db connectionConfig;
     private long lastFailure;
     private boolean outageReported;
     private boolean driverLoaded;
+    private boolean createWarned;
 
     Database(Logger log, Settings.Db config) {
         this.log = log;
@@ -56,8 +59,18 @@ final class Database {
         this.config = config;
     }
 
+    /** Runs on the database thread each time a new connection is opened. */
+    void onConnect(Runnable callback) {
+        this.onConnect = callback;
+    }
+
     boolean healthy() {
         return healthy;
+    }
+
+    /** Message of the last failure, null while the database works. */
+    String lastError() {
+        return lastError;
     }
 
     void ping() {
@@ -162,12 +175,17 @@ final class Database {
                 try {
                     T result = query.run(connection());
                     healthy = true;
+                    lastError = null;
                     outageReported = false;
                     future.complete(result);
                 } catch (SQLException e) {
+                    lastError = e.getMessage();
                     if (!outageReported) {
                         outageReported = true;
-                        log.warning("Database error, PetShop keeps the last known state and refuses purchases until it is back: " + e.getMessage());
+                        Settings.Db current = config;
+                        log.warning("Cannot use the database " + current.url() + " as user '" + current.properties().getOrDefault("user", "")
+                                + "': " + e.getMessage() + " PetShop keeps the last known state and refuses purchases until it works."
+                                + " Check database in plugins/PetShop/config.yml, then run /petshop reload.");
                     }
                     healthy = false;
                     close();
@@ -208,13 +226,27 @@ final class Database {
                 st.executeUpdate("CREATE TABLE IF NOT EXISTS " + current.prefix() + "player ("
                         + "uuid BINARY(16) NOT NULL PRIMARY KEY, active_pet VARCHAR(64) NULL, updated_at BIGINT NOT NULL)");
             } catch (SQLException e) {
-                fresh.close();
-                throw e;
+                if (!tablesExist(fresh, current.prefix())) {
+                    fresh.close();
+                    throw e;
+                }
+                if (!createWarned) {
+                    createWarned = true;
+                    log.warning("Could not create the tables (" + e.getMessage() + "), but they exist, so PetShop uses them.");
+                }
             }
             connection = fresh;
             connectionConfig = current;
             if (!healthy) {
                 log.info("Connected to MariaDB at " + current.url() + ".");
+            }
+            Runnable callback = onConnect;
+            if (callback != null) {
+                try {
+                    callback.run();
+                } catch (RuntimeException e) {
+                    log.log(Level.WARNING, "Reloading players after the database connected failed", e);
+                }
             }
             return fresh;
         } catch (ClassNotFoundException e) {
@@ -223,6 +255,16 @@ final class Database {
         } catch (SQLException e) {
             lastFailure = System.currentTimeMillis();
             throw e;
+        }
+    }
+
+    private static boolean tablesExist(Connection c, String prefix) {
+        try (Statement st = c.createStatement()) {
+            st.executeQuery("SELECT 1 FROM " + prefix + "owned LIMIT 0").close();
+            st.executeQuery("SELECT 1 FROM " + prefix + "player LIMIT 0").close();
+            return true;
+        } catch (SQLException e) {
+            return false;
         }
     }
 

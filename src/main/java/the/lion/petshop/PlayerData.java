@@ -95,7 +95,10 @@ final class PlayerData {
             Catalog.Entry entry = catalog.visibleByKey.get(key);
             if (entry != null) {
                 count++;
-                values.put(entry.labelKey(), key.equals(active) ? catalog.equippedLabel : catalog.equipLabel);
+                boolean equipped = key.equals(active);
+                values.put(entry.labelKey(), equipped ? catalog.equippedLabel : catalog.equipLabel);
+                values.put(entry.ownedKey(), "true");
+                values.put(entry.stateKey(), equipped ? "equipped" : "owned");
             }
         }
         values.put("owned", Integer.toString(count));

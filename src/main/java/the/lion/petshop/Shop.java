@@ -50,6 +50,24 @@ final class Shop {
         this.plugin = plugin;
         this.db = db;
         this.points = points;
+        db.onConnect(this::reloadUnavailable);
+    }
+
+    /** "API" while MCPets is driven through its Java API, otherwise "commands". */
+    String mcpetsMode() {
+        return hook() != null ? "API" : "commands";
+    }
+
+    /** The database is back: load every online player whose pets could not be loaded before. */
+    private void reloadUnavailable() {
+        global(() -> {
+            for (PlayerData data : players.values()) {
+                Player player = Bukkit.getPlayer(data.uuid);
+                if (player != null && !data.available()) {
+                    refresh(player, data, null);
+                }
+            }
+        });
     }
 
     void mcpets(McPetsHook hook) {
@@ -160,7 +178,22 @@ final class Shop {
         if (pet == null || data == null || !cooldown(data)) {
             return;
         }
-        if (data.owns(key)) {
+        if (data.available()) {
+            act(player, data, pet);
+            return;
+        }
+        refresh(player, data, () -> {
+            Catalog.Entry current = plugin.catalog().visibleByKey.get(key);
+            if (!data.available()) {
+                error(player, db.healthy() ? "data-unavailable" : "database-unavailable");
+            } else if (current != null) {
+                act(player, data, current);
+            }
+        });
+    }
+
+    private void act(Player player, PlayerData data, Catalog.Entry pet) {
+        if (data.owns(pet.key())) {
             equip(player, data, pet);
         } else {
             purchase(player, data, pet);

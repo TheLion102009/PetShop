@@ -31,6 +31,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
@@ -40,7 +41,7 @@ import java.util.regex.Pattern;
 
 public final class PetShop extends JavaPlugin implements Listener {
 
-    enum MenuMode { STARTUP, AUTO, FORCE }
+    enum MenuMode { MISSING, STARTUP, AUTO, FORCE }
 
     private static final Pattern MCPETS_RELOAD = Pattern.compile("^/?(?:mcpets:)?(?:mcpets|pets)\\s+reload(?:\\s.*)?$", Pattern.CASE_INSENSITIVE);
 
@@ -56,12 +57,13 @@ public final class PetShop extends JavaPlugin implements Listener {
     private final AtomicBoolean scanQueued = new AtomicBoolean();
     private final Set<String> warnedIcons = ConcurrentHashMap.newKeySet();
     private volatile String lastFingerprint = "";
+    private volatile int petsWithoutIcon;
     private ScheduledTask rescanTask;
     private String lastMenu;
 
     // Global region thread only.
     private List<Catalog.Entry> rawEntries;
-    private boolean startupMenuPending = true;
+    private boolean startupMenuPending;
     private boolean nexoWaitOver;
 
     @Override
@@ -107,10 +109,19 @@ public final class PetShop extends JavaPlugin implements Listener {
         getLifecycleManager().registerEventHandler(LifecycleEvents.COMMANDS,
                 event -> event.registrar().register("petshop", "Pet shop and wardrobe", List.of("ps"), new PetShopCommand(this)));
 
+        // GameUI bakes scroll regions into its pack at startup, so the menu file must exist before it enables (loadbefore).
+        Catalog.Scan first = Catalog.scan(petsFolder(), petsFile(), settings, getLogger());
+        lastFingerprint = first.fingerprint();
+        rawEntries = first.entries();
+        catalog = new Catalog(resolveIcons(rawEntries, settings), settings.labelEquip, settings.labelEquipped);
+        boolean iconsFinal = nexo == null || nexo.ready();
+        startupMenuPending = !iconsFinal;
+        synchronized (menuLock) {
+            writeMenu(iconsFinal ? MenuMode.STARTUP : MenuMode.MISSING, null, false);
+        }
         for (Player player : getServer().getOnlinePlayers()) {
             shop.join(player);
         }
-        scan(null);
         scheduleRescan();
     }
 
@@ -261,13 +272,25 @@ public final class PetShop extends JavaPlugin implements Listener {
         boolean nexoReady = nexo != null && nexo.ready();
         boolean iconsFinal = nexo == null || nexoReady || nexoWaitOver;
         String fallback = current.itemFormatMaterial.replace("{material}", current.fallbackMaterial);
+        List<String> nexoIds = nexoReady ? nexo.ids() : List.of();
+        Map<String, Integer> frequency = Catalog.wordFrequency(entries);
         List<Catalog.Entry> resolved = new ArrayList<>(entries.size());
+        int withoutIcon = 0;
         for (Catalog.Entry entry : entries) {
             List<String> candidates = entry.iconCandidates();
             String nexoId = nexoReady ? nexo.find(candidates) : null;
+            if (nexoId == null && nexoReady && entry.nexoItem().isEmpty()) {
+                nexoId = Catalog.closestIcon(entry, frequency, nexoIds);
+                if (nexoId != null && entry.enabled() && warnedIcons.add(entry.key() + "=" + nexoId)) {
+                    getLogger().info("Pet " + entry.key() + " uses Nexo item '" + nexoId + "' (closest name). Set nexo-item in pets.yml to pick another one.");
+                }
+            }
             if (nexoId != null) {
                 resolved.add(entry.withItemId(current.itemFormatNexo.replace("{id}", nexoId)));
                 continue;
+            }
+            if (entry.enabled()) {
+                withoutIcon++;
             }
             if (iconsFinal && entry.enabled() && warnedIcons.add(entry.key())) {
                 if (nexo == null) {
@@ -275,11 +298,13 @@ public final class PetShop extends JavaPlugin implements Listener {
                 } else if (!entry.nexoItem().isEmpty()) {
                     getLogger().warning("Pet " + entry.key() + ": Nexo item '" + entry.nexoItem() + "' from pets.yml does not exist, using the fallback icon.");
                 } else {
-                    getLogger().warning("Pet " + entry.key() + ": no Nexo item found (tried " + String.join(", ", candidates) + "), using the fallback icon.");
+                    getLogger().warning("Pet " + entry.key() + ": no Nexo item found (tried " + String.join(", ", candidates)
+                            + " and similar names), using the fallback icon. Set nexo-item in pets.yml.");
                 }
             }
             resolved.add(entry.withItemId(fallback));
         }
+        petsWithoutIcon = withoutIcon;
         return resolved;
     }
 
@@ -289,6 +314,21 @@ public final class PetShop extends JavaPlugin implements Listener {
 
     private File petsFile() {
         return new File(getDataFolder(), "pets.yml");
+    }
+
+    void status(CommandSender sender) {
+        String error = database.lastError();
+        String db = database.healthy() ? "connected" : error == null ? "connecting" : "not reachable (" + error + ")";
+        String nexoState = nexo == null ? "not installed" : nexo.ready() ? "items loaded" : "loading items";
+        Catalog current = catalog;
+        shop.tell(sender, "status",
+                Placeholder.unparsed("database", db),
+                Placeholder.unparsed("pets", Integer.toString(current.visible.size())),
+                Placeholder.unparsed("fallback", Integer.toString(petsWithoutIcon)),
+                Placeholder.unparsed("nexo", nexoState),
+                Placeholder.unparsed("mcpets", shop.mcpetsMode()),
+                Placeholder.unparsed("papi", expansion != null ? "registered" : "not installed"),
+                Placeholder.unparsed("file", settings.menuFile));
     }
 
     // ---- reload and menu ----
@@ -309,12 +349,12 @@ public final class PetShop extends JavaPlugin implements Listener {
     void generateMenu(MenuMode mode, CommandSender requester) {
         getServer().getAsyncScheduler().runNow(this, task -> {
             synchronized (menuLock) {
-                writeMenu(mode, requester);
+                writeMenu(mode, requester, true);
             }
         });
     }
 
-    private void writeMenu(MenuMode mode, CommandSender requester) {
+    private void writeMenu(MenuMode mode, CommandSender requester, boolean runReloadCommand) {
         Settings current = settings;
         Catalog snapshot = catalog;
         if (current.menuFile.isEmpty()) {
@@ -338,6 +378,7 @@ public final class PetShop extends JavaPlugin implements Listener {
             Path target = Path.of(current.menuFile);
             boolean exists = Files.exists(target);
             boolean write = switch (mode) {
+                case MISSING -> !exists;
                 case FORCE -> true;
                 case STARTUP -> !exists || current.generateOnStart;
                 case AUTO -> changed;
@@ -359,7 +400,7 @@ public final class PetShop extends JavaPlugin implements Listener {
             }
             lastMenu = content;
             getLogger().info("Menu file " + target + " written with " + snapshot.visible.size() + " pets.");
-            if (!current.menuReloadCommand.isEmpty()) {
+            if (runReloadCommand && !current.menuReloadCommand.isEmpty()) {
                 getServer().getGlobalRegionScheduler().execute(this, () -> dispatchConsole(current.menuReloadCommand));
             }
             if (requester != null) {

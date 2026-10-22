@@ -32,6 +32,11 @@ final class NexoHook implements Listener {
         return null;
     }
 
+    /** Every Nexo item id. Must run on the main thread. */
+    List<String> ids() {
+        return List.copyOf(NexoItems.itemNames());
+    }
+
     @EventHandler
     public void onItemsLoaded(NexoItemsLoadedEvent event) {
         ready = true;

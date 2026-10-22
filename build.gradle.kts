@@ -38,6 +38,7 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation("io.papermc.paper:paper-api:$paperApi")
     testImplementation("org.yaml:snakeyaml:2.4")
+    testImplementation("org.mariadb.jdbc:mariadb-java-client:3.5.11")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
@@ -63,4 +64,8 @@ tasks.jar {
 tasks.test {
     useJUnitPlatform()
     systemProperty("petshop.testOutput", layout.buildDirectory.dir("menu-test-output").get().asFile.absolutePath)
+    // DatabaseTest only runs with -PtestDb=jdbc:mariadb://host:port/db -PtestDbUser=.. -PtestDbPassword=..
+    for (name in listOf("testDb", "testDbUser", "testDbPassword", "testDbLimitedUser")) {
+        systemProperty("petshop.$name", providers.gradleProperty(name).getOrElse(""))
+    }
 }

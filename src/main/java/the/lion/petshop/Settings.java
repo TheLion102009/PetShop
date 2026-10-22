@@ -35,6 +35,7 @@ final class Settings {
     static final MiniMessage MINI = MiniMessage.miniMessage();
     private static final Pattern TABLE_PREFIX = Pattern.compile("[A-Za-z0-9_]{0,32}");
     private static final int[] DEFAULT_COLUMNS = {590, 945, 1300};
+    private static final Pattern COLOR = Pattern.compile("#[0-9A-Fa-f]{6}");
 
     final Db db;
     final int defaultPrice;
@@ -96,8 +97,13 @@ final class Settings {
 
         List<Integer> columnList = c.getIntegerList("menu-layout.columns");
         int[] columns = columnList.isEmpty() ? DEFAULT_COLUMNS : columnList.stream().mapToInt(Integer::intValue).toArray();
+        String selectedColor = c.getString("menu-layout.selected-color", "").trim();
+        if (!selectedColor.isEmpty() && !COLOR.matcher(selectedColor).matches()) {
+            log.warning("menu-layout.selected-color '" + selectedColor + "' is not a colour like '#FFC24A'. The active pet is not highlighted.");
+            selectedColor = "";
+        }
         layout = new MenuGenerator.Layout(columns, c.getInt("menu-layout.first-row-y", 668), Math.max(1, c.getInt("menu-layout.row-spacing", 240)),
-                Math.max(1, c.getInt("menu-layout.view-height", 500)), Math.max(1, c.getInt("menu-layout.min-thumb", 32)));
+                Math.max(1, c.getInt("menu-layout.min-thumb", 32)), selectedColor);
 
         grantByCommand = "command".equalsIgnoreCase(c.getString("grant-mode", "attachment"));
         grantCommand = stripSlash(c.getString("grant-command", ""));

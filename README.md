@@ -15,8 +15,12 @@ selbst erzeugt. PetShop hat keine eigene GUI.
    `config.yml`, `messages.yml`, `pets.yml` und `menu-template.yml` in `plugins/PetShop/`.
 2. Datenbank anlegen (siehe unten) und in `config.yml` unter `database` eintragen.
 3. `/petshop reload`. Die Konsole meldet `Connected to MariaDB ...`.
-4. In GameUI landet das Menü automatisch unter `plugins/GameUI/screen/shop.yml`;
+4. Das Menü landet automatisch unter `plugins/GameUI/screen/Petsshop.yml` (Befehl `/petsshop`);
    danach führt PetShop `hexo-ui screen reload` aus. `/petshop` öffnet es.
+   PetShop überschreibt diese Datei. Das Design änderst du in `plugins/PetShop/menu-template.yml`.
+
+PetShop lädt vor GameUI (`loadbefore`) und schreibt die Menüdatei schon in `onEnable`, weil GameUI
+die Scrollbereiche beim Start in sein Resource Pack einbaut.
 
 ## Datenbank
 
@@ -44,11 +48,11 @@ Server weiter: Käufe werden mit Meldung abgelehnt, das Menü zeigt den letzten 
 | `default-price` | `2000` | Preis für Pets ohne eigenen Preis |
 | `currency-name` | `coins` | erscheint hinter dem Preis (`2000 coins`) |
 | `sort` | `name` | Reihenfolge im Menü: `name`, `price`, `file` |
-| `open-command` | `shop` | Befehl, den der Spieler nach `/petshop` ausführt (öffnet das GameUI-Menü) |
-| `menu-file` | `plugins/GameUI/screen/shop.yml` | Ziel der erzeugten Menüdatei, leer = keine Datei |
+| `open-command` | `petsshop` | Befehl, den der Spieler nach `/petshop` ausführt; muss zur `command:`-Zeile der Vorlage passen |
+| `menu-file` | `plugins/GameUI/screen/Petsshop.yml` | Ziel der erzeugten Menüdatei (GameUI benennt den Screen nach der Datei), leer = keine Datei |
 | `menu-reload-command` | `hexo-ui screen reload` | Konsolenbefehl nach dem Schreiben, leer = keiner |
 | `generate-on-start` | `true` | beim Start neu schreiben, wenn sich der Inhalt unterscheidet (`false`: nur wenn die Datei fehlt) |
-| `menu-layout.*` | `[590, 945, 1300]`, `668`, `240`, `500`, `32` | Spalten-x, y der ersten Reihe, Reihenabstand, Höhe des Scrollbereichs, kleinste Daumenhöhe |
+| `menu-layout.*` | `[590, 945, 1300]`, `668`, `240`, `32`, `'#FFC24A'` | Spalten-x, y der ersten Reihe, Reihenabstand, kleinste Daumenhöhe, Randfarbe des ausgewählten Pets (leer = keine) |
 | `grant-mode` | `attachment` | `attachment` (Rechte nur im Speicher, DB ist die einzige Quelle) oder `command` |
 | `grant-command` / `revoke-command` | LuckPerms-Befehle | für `grant-mode: command`, Platzhalter `{player}`, `{permission}` |
 | `mcpets-hook` | `api` | `api` (MCPets-Java-API) oder `command` |
@@ -92,20 +96,38 @@ GameUI zeichnet sie als reinen Text (Farbe kommt vom Menü-Element).
 
 ## Menü
 
-PetShop schreibt die GameUI-Datei aus `plugins/PetShop/menu-template.yml`. Die Vorlage ist die
-`shop.yml` mit Scrollbereich (`scrollables`, `scrollRegion`, `scrollGroup`, `rows_track`,
-`rows_thumb`). Eine eigene Vorlage kann die Datei ersetzen. Regeln:
+PetShop schreibt die GameUI-Datei aus `plugins/PetShop/menu-template.yml` (deine `Petsshop.yml`).
+Die Vorlage enthält zwei Musterkarten:
 
-- **Kopf**: alles vor `card_1_edge`. **Karte**: alle Elemente `card_1*` (Edge, Karte, Item,
-  Name, Preis). Die übrigen `card_N*` der Vorlage werden ignoriert. **Fuß**: alles danach.
-- Karte N (i = N − 1) liegt in Spalte `i % 3`, Reihe `i / 3`: `x = [590, 945, 1300]`,
-  `y = 668 − 240 · Reihe`. Die Abstände von Item, Name und Preis zur Karte kommen aus der Vorlage.
-- Ersetzt werden: Name (`'…'`), `itemId`, Preis (`'%petshop_label_<id>%'`), der `RUN_COMMAND`
-  der Karte (`petshop click <id>`), die Textbreiten (Zeichenbreiten × `glyphScale` × 8), die
-  Daumenhöhe von `rows_thumb` (`clamp(round(500·500 / (Reihen·240)), 32, 500)`) und die Breite
-  von `title_right`. Alles andere bleibt Zeichen für Zeichen wie in der Vorlage.
-- Die Datei wird atomar geschrieben (temporäre Datei, dann verschieben) und nur, wenn sich der
-  Inhalt geändert hat. `/petshop generate` schreibt immer.
+| Musterkarte | Aussehen | Sichtbar für Spieler, die das Pet ... |
+|---|---|---|
+| `card_1` (Jupiter) | Icon 128 bei +36, Name bei −46, Preis bei −78 | noch nicht besitzen |
+| `card_2` (Ebony Cat) | Icon 155 bei +22, Name bei −82, kein Preis | besitzen |
+
+Erkannt wird das automatisch: die erste Karte **mit** `card_N_price` ist das Kauf-Layout, die erste
+**ohne** das Besitz-Layout. Weitere `card_N*` der Vorlage werden ignoriert. Jede Pet-Karte bekommt:
+
+- Elemente, die in beiden Mustern gleich sind (Rand, Hintergrund), nur einmal.
+- Elemente, die sich unterscheiden, zweimal: `card_N_item`, `card_N_name`, `card_N_price` mit
+  `visible: '{= !%petshop_owned_<id>% }'` und `card_N_item_owned`, `card_N_name_owned` mit
+  `visible: '%petshop_owned_<id>%'`. GameUI liest das pro Spieler zweimal pro Sekunde; nach einem
+  Kauf wechselt die Karte also von selbst ins Besitz-Layout.
+- Die Klick-Aktion sitzt auf `card_N_edge`, damit die ganze hellgraue Fläche reagiert
+  (GameUI gibt Klicks nur an Elemente mit `actions`, Beschriftungen blockieren nicht).
+  `clickCooldown: 1000` passt zur Abklingzeit im Plugin.
+- Der Rand des ausgewählten Pets wird gold:
+  `color: "{= pick(%petshop_state_<id>%, 'equipped', '#FFC24A', '#5A6273') }"`.
+- Position: Karte N (i = N − 1) liegt in Spalte `i % 3`, Reihe `i / 3`, `x = [590, 945, 1300]`,
+  `y = 668 − 240 · Reihe`; Abstände der Elemente zur Karte wie in der Vorlage. `scrollGroup` ist
+  `row<Reihe>`.
+- Ersetzt werden außerdem Name, `itemId`, Preis-Platzhalter, `petshop click <id>`, die Textbreiten
+  (Zeichenbreiten × `glyphScale` × 8) und die Daumenhöhe von `rows_thumb`:
+  `clamp(round(Spur · Bereich / (Reihen · 240)), 32, Spur)` mit Spur = Höhe von `rows_track` und
+  Bereich = Höhe des Scrollbereichs (bei dir beide 486).
+- Alles andere bleibt Zeichen für Zeichen wie in der Vorlage. Hat eine Vorlage kein Besitz-Layout,
+  zeigt die Preiszeile wie früher `Equip` / `Equipped`.
+- Die Datei wird atomar geschrieben und nur, wenn sich der Inhalt geändert hat.
+  `/petshop generate` schreibt immer.
 
 ## Befehle
 
@@ -126,6 +148,8 @@ PetShop schreibt die GameUI-Datei aus `plugins/PetShop/menu-template.yml`. Die V
 | Placeholder | Wert |
 |---|---|
 | `%petshop_label_<pet>%` | `2000 coins` / `Equip` / `Equipped` |
+| `%petshop_owned_<pet>%` | `true` / `false`: besitzt der Spieler das Pet |
+| `%petshop_state_<pet>%` | `buy` / `owned` / `equipped` |
 | `%petshop_owned%` | Anzahl besessener Pets, die im Shop sind |
 | `%petshop_total%` | Anzahl Pets im Shop |
 | `%petshop_active%` | Name des aktiven Pets oder leer |
@@ -169,10 +193,12 @@ PetShop nutzt die öffentliche Klasse `fr.nocsy.mcpets.api.MCPetsAPI` (kompilier
 
 - GameUI liest Nexo-Items als `nexo:<id>` (aus dem GameUI-0.0.26-Jar gelesen) und lädt Screens
   mit `hexo-ui screen reload` neu. Beides ist in `config.yml` änderbar.
-- Die Bedeutung von `scrollables.position` (linke obere Ecke, y von oben gezählt) ist aus
-  `armory.yml` abgeleitet; GameUI dokumentiert sie nicht.
-- PetShop liest `config.yml`, `messages.yml` und `pets.yml` einmal in `onEnable` auf dem
-  Haupt-Thread (bevor der Server tickt). Alle späteren Datei- und Datenbankzugriffe laufen async.
+- GameUI zählt `false`, `no`, `0` und leeren Text als falsch (aus dem GameUI-0.0.26-Jar gelesen);
+  darauf bauen die `visible`-Bedingungen. Dass ein verstecktes Element keine Klicks nimmt, steht
+  so in der Doku (`startHidden`); die Karten verlassen sich darauf nicht, weil nur der Rand klickbar ist.
+- PetShop liest beim Start `config.yml`, `messages.yml`, `pets.yml` und die MCPets-Dateien und
+  schreibt die Menüdatei einmal in `onEnable` auf dem Haupt-Thread (bevor der Server tickt), damit
+  GameUI sie beim Start vorfindet. Alle späteren Datei- und Datenbankzugriffe laufen async.
 - Ein Pet wird beim Kauf zuerst reserviert. Stürzt der Server genau zwischen Reservierung und
   Abbuchung ab, behält der Spieler das Pet ohne Bezahlung.
 - Folia ist nicht freigegeben (`folia-supported` fehlt), weil MCPets und PlaceholderAPI dort

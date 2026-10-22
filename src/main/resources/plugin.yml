@@ -12,6 +12,9 @@ softdepend:
   - PlaceholderAPI
   - Nexo
   - MCPets
+# GameUI reads its screens and builds its pack at startup, so PetShop writes the menu file first.
+loadbefore:
+  - GameUI
 
 libraries:
   - org.mariadb.jdbc:mariadb-java-client:3.5.11

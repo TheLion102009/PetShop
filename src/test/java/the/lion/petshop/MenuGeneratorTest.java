@@ -21,12 +21,14 @@ import java.util.regex.Pattern;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class MenuGeneratorTest {
 
-    private static final MenuGenerator.Layout LAYOUT = new MenuGenerator.Layout(new int[]{590, 945, 1300}, 668, 240, 500, 32);
+    private static final MenuGenerator.Layout LAYOUT = new MenuGenerator.Layout(new int[]{590, 945, 1300}, 668, 240, 32, "#FFC24A");
+    private static final MenuGenerator.Layout PLAIN = new MenuGenerator.Layout(new int[]{590, 945, 1300}, 668, 240, 32, "");
     private static final List<String> LABELS = List.of("Equip", "Equipped");
     private static final Pattern ID_LINE = Pattern.compile("^(?: {2}- | {4})id: (.+)$");
     private static final Pattern POSITION = Pattern.compile("^ {4}position: \\{ x: (-?\\d+), y: (-?\\d+) }$");
@@ -43,40 +45,38 @@ class MenuGeneratorTest {
         assertEquals(162, MenuGenerator.textWidth("2000 coins", 0.375));
         assertEquals(256, MenuGenerator.textWidth("Server shop", 0.5));
         assertEquals(212, MenuGenerator.textWidth("Click an item to buy it", 0.25));
-        assertEquals(81, MenuGenerator.textWidth("Close", 0.375));
-        assertEquals(117, MenuGenerator.textWidth("Balance", 0.375));
+        assertEquals(210, MenuGenerator.textWidth("Jupiter Cubee", 0.375));
+        assertEquals(252, MenuGenerator.textWidth("Ebony Cat Cubee", 0.375));
     }
 
     @Test
     void thumbHeightFollowsFormula() {
-        assertEquals(500, MenuGenerator.thumbHeight(0, LAYOUT));
-        assertEquals(500, MenuGenerator.thumbHeight(1, LAYOUT));
-        assertEquals(500, MenuGenerator.thumbHeight(6, LAYOUT));
-        assertEquals(347, MenuGenerator.thumbHeight(7, LAYOUT));
-        assertEquals(74, MenuGenerator.thumbHeight(40, LAYOUT));
-        assertEquals(32, MenuGenerator.thumbHeight(300, LAYOUT));
+        assertEquals(500, MenuGenerator.thumbHeight(0, LAYOUT, 500, 500));
+        assertEquals(500, MenuGenerator.thumbHeight(1, LAYOUT, 500, 500));
+        assertEquals(500, MenuGenerator.thumbHeight(6, LAYOUT, 500, 500));
+        assertEquals(347, MenuGenerator.thumbHeight(7, LAYOUT, 500, 500));
+        assertEquals(74, MenuGenerator.thumbHeight(40, LAYOUT, 500, 500));
+        assertEquals(32, MenuGenerator.thumbHeight(300, LAYOUT, 500, 500));
+        assertEquals(486, MenuGenerator.thumbHeight(4, LAYOUT, 486, 486));
+        assertEquals(164, MenuGenerator.thumbHeight(16, LAYOUT, 486, 486));
     }
 
     @ParameterizedTest
-    @ValueSource(ints = {0, 1, 5, 6, 40})
-    void generatedFileIsValidAndComplete(int pets) throws IOException {
+    @ValueSource(ints = {0, 1, 5, 6, 16, 40})
+    void everyCardHasTheBuyAndTheOwnedLayout(int pets) throws IOException {
         List<MenuGenerator.Card> cards = cards(pets);
         String output = MenuGenerator.generate(resource("/menu-template.yml"), cards, LAYOUT);
-        writeOutput("shop-" + pets + ".yml", output);
+        writeOutput("petsshop-" + pets + ".yml", output);
 
         Map<String, Object> root = new Yaml().load(output);
-        assertEquals("/shop", root.get("command"));
+        assertEquals("/petsshop", root.get("command"));
         assertNotNull(root.get("scrollables"));
+        assertEquals(List.of("HEARTS", "HOTBAR", "HAND"), root.get("hideVanilla"));
         List<Map<String, Object>> elements = elements(root);
-
-        Set<String> ids = new HashSet<>();
-        for (Map<String, Object> element : elements) {
-            assertTrue(ids.add((String) element.get("id")), "duplicate id " + element.get("id"));
-        }
-        assertEquals(5 * pets, elements.stream().filter(e -> ((String) e.get("id")).startsWith("card_")).count());
-        for (String fixed : List.of("panel_edge", "panel", "title", "title_right", "title_rule", "balance_label", "balance",
-                "btn_close_edge", "btn_close", "btn_close_label", "rows_track", "rows_thumb")) {
-            assertTrue(ids.contains(fixed), "missing " + fixed);
+        assertUniqueIds(elements);
+        assertEquals(7L * pets, elements.stream().filter(e -> ((String) e.get("id")).startsWith("card_")).count());
+        for (String fixed : List.of("panel_edge", "panel", "title", "title_rule", "balance_label", "balance", "rows_track", "rows_thumb", "image_1")) {
+            element(elements, fixed);
         }
 
         for (int i = 0; i < pets; i++) {
@@ -84,81 +84,125 @@ class MenuGeneratorTest {
             MenuGenerator.Card card = cards.get(i);
             int x = new int[]{590, 945, 1300}[i % 3];
             int y = 668 - 240 * (i / 3);
+            String toBuy = "{= !%petshop_owned_" + card.key() + "% }";
+            String isOwned = "%petshop_owned_" + card.key() + "%";
+
             Map<String, Object> edge = element(elements, "card_" + n + "_edge");
-            Map<String, Object> body = element(elements, "card_" + n);
-            Map<String, Object> item = element(elements, "card_" + n + "_item");
-            Map<String, Object> name = element(elements, "card_" + n + "_name");
-            Map<String, Object> price = element(elements, "card_" + n + "_price");
-            for (Map<String, Object> element : List.of(edge, body, item, name, price)) {
-                assertEquals("rows", element.get("scrollRegion"));
-                assertEquals("card" + n, element.get("scrollGroup"));
-            }
             assertPosition(edge, x, y);
+            assertEquals(List.of(Map.of("type", "RUN_COMMAND", "target", "petshop click " + card.key())), edge.get("actions"));
+            assertEquals(1000, edge.get("clickCooldown"));
+            assertEquals("{= pick(%petshop_state_" + card.key() + "%, 'equipped', '#FFC24A', '#5A6273') }", edge.get("color"));
+            assertNull(edge.get("visible"));
+
+            Map<String, Object> body = element(elements, "card_" + n);
             assertPosition(body, x, y);
+            assertNull(body.get("actions"), "only the edge takes clicks, so the whole grey area works");
+            assertNull(body.get("visible"));
+
+            Map<String, Object> item = element(elements, "card_" + n + "_item");
             assertPosition(item, x, y + 36);
+            assertEquals(128, size(item).get("width"));
+            assertEquals(card.itemId(), item.get("itemId"));
+            assertEquals(toBuy, item.get("visible"));
+
+            Map<String, Object> ownedItem = element(elements, "card_" + n + "_item_owned");
+            assertPosition(ownedItem, x, y + 22);
+            assertEquals(155, size(ownedItem).get("width"));
+            assertEquals(card.itemId(), ownedItem.get("itemId"));
+            assertEquals(isOwned, ownedItem.get("visible"));
+
+            Map<String, Object> name = element(elements, "card_" + n + "_name");
             assertPosition(name, x, y - 46);
-            assertPosition(price, x, y - 78);
             assertEquals(card.name(), name.get("text"));
             assertEquals(MenuGenerator.textWidth(card.name(), 0.375), size(name).get("width"));
-            assertEquals(24, size(name).get("height"));
+            assertEquals(toBuy, name.get("visible"));
+
+            Map<String, Object> ownedName = element(elements, "card_" + n + "_name_owned");
+            assertPosition(ownedName, x, y - 82);
+            assertEquals(card.name(), ownedName.get("text"));
+            assertEquals(isOwned, ownedName.get("visible"));
+
+            Map<String, Object> price = element(elements, "card_" + n + "_price");
+            assertPosition(price, x, y - 78);
             assertEquals("%petshop_label_" + card.key() + "%", price.get("text"));
             int widest = card.labels().stream().mapToInt(label -> MenuGenerator.textWidth(label, 0.375)).max().orElseThrow();
             assertEquals(widest, size(price).get("width"));
-            assertEquals(card.itemId(), item.get("itemId"));
-            List<?> actions = (List<?>) body.get("actions");
-            assertEquals(1, actions.size());
-            assertEquals(Map.of("type", "RUN_COMMAND", "target", "petshop click " + card.key()), actions.getFirst());
-            List<?> hover = (List<?>) body.get("hoverActions");
-            assertEquals("card_" + n + "_edge", ((Map<?, ?>) hover.get(1)).get("element"));
-            assertEquals(8, ((Map<?, ?>) body.get("corner")).get("size"));
-            assertNotNull(((Map<?, ?>) body.get("timelines")).get("grow"));
-        }
+            assertEquals(toBuy, price.get("visible"));
 
-        assertEquals(MenuGenerator.thumbHeight(pets, LAYOUT), size(element(elements, "rows_thumb")).get("height"));
-        assertEquals(500, size(element(elements, "rows_track")).get("height"));
-        String count = Integer.toString(pets);
-        assertEquals(MenuGenerator.textWidth(count + "/" + count + " pets owned", 0.25), size(element(elements, "title_right")).get("width"));
-        assertTrue(output.endsWith("\n"));
+            for (Map<String, Object> part : List.of(edge, body, item, ownedItem, name, ownedName, price)) {
+                assertEquals("rows", part.get("scrollRegion"));
+                assertEquals("row" + (i / 3 + 1), part.get("scrollGroup"));
+            }
+        }
+        assertEquals(MenuGenerator.thumbHeight(pets, LAYOUT, 486, 486), size(element(elements, "rows_thumb")).get("height"));
+        assertEquals(486, size(element(elements, "rows_track")).get("height"));
+        assertTrue(output.endsWith("HAND\n"));
     }
 
     @Test
-    void sixPetsKeepTheTemplateStructure() throws IOException {
-        assertSameStructure(resource("/menu-template.yml"), "scroll-template-6.yml");
+    void cardElementsKeepTheTemplateFieldOrder() {
+        String output = MenuGenerator.generate(resource("/menu-template.yml"), cards(1), LAYOUT);
+        String template = resource("/menu-template.yml");
+        assertTrue(output.contains("""
+                  - type: IMAGE
+                    id: card_1_edge
+                    sprite: rect.png
+                    color: "{= pick(%petshop_state_pet_1%, 'equipped', '#FFC24A', '#5A6273') }"
+                    position: { x: 590, y: 668 }
+                    size: { width: 338, height: 228 }
+                    layer: 5
+                    corner: { shape: CUT, size: 9 }
+                    clickCooldown: 1000
+                    actions:
+                      - { type: RUN_COMMAND, target: petshop click pet_1 }
+                    scrollRegion: rows
+                    scrollGroup: row1
+                  - type: IMAGE
+                    id: card_1
+                """), output);
+        assertTrue(output.contains("""
+                  - type: ITEM
+                    id: card_1_item_owned
+                    itemId: nexo:pet_1_icon
+                    position: { x: 590, y: 690 }
+                    size: { width: 155, height: 155 }
+                    layer: 7
+                    visible: '%petshop_owned_pet_1%'
+                    scrollRegion: rows
+                    scrollGroup: row1
+                """), output);
+        String head = template.substring(0, template.indexOf("  - type: IMAGE\n    id: card_1_edge"));
+        String foot = template.substring(template.indexOf("  - type: TEXT\n    id: balance_label"));
+        assertTrue(output.startsWith(head));
+        assertTrue(output.endsWith(foot));
+    }
+
+    @Test
+    void usersOwnTemplateIsDetectedAutomatically() throws IOException {
+        List<MenuGenerator.Card> cards = cards(16);
+        String output = MenuGenerator.generate(resource("/petsshop-user.yml"), cards, LAYOUT);
+        writeOutput("petsshop-user-16.yml", output);
+        List<Map<String, Object>> elements = elements(new Yaml().load(output));
+        assertUniqueIds(elements);
+        assertEquals(16L * 7, elements.stream().filter(e -> ((String) e.get("id")).startsWith("card_")).count());
+        Map<String, Object> item = element(elements, "card_16_item");
+        assertEquals(88, size(item).get("width"), "card_1 of that file is the layout to buy");
+        assertPosition(item, 590, 668 - 5 * 240 + 36);
+        Map<String, Object> ownedItem = element(elements, "card_16_item_owned");
+        assertEquals(155, size(ownedItem).get("width"), "card_3 of that file is the owned layout");
+        assertPosition(ownedItem, 590, 668 - 5 * 240 + 22);
+        assertEquals(List.of(Map.of("type", "RUN_COMMAND", "target", "petshop click pet_16")), element(elements, "card_16").get("actions"));
+        assertEquals(MenuGenerator.thumbHeight(16, LAYOUT, 486, 486), size(element(elements, "rows_thumb")).get("height"));
+        assertEquals(List.of("HEARTS", "HOTBAR", "HAND"), new Yaml().<Map<String, Object>>load(output).get("hideVanilla"));
     }
 
     @Test
     void sixPetsKeepTheOriginalShopStructure() throws IOException {
-        assertSameStructure(resource("/shop-original.yml"), "original-template-6.yml");
-    }
-
-    @Test
-    void namesAndItemIdsAreYamlSafe() {
-        List<MenuGenerator.Card> cards = List.of(
-                new MenuGenerator.Card("bob", "Bob's Pet: #1 {x} [y] %z", "nexo:yes", LABELS),
-                new MenuGenerator.Card("tim", "Tim", "yes", LABELS),
-                new MenuGenerator.Card("ann", "Ann", "weird id: #x", LABELS),
-                new MenuGenerator.Card("eve", "Line\nbreak", "nexo:", LABELS));
-        String output = MenuGenerator.generate(resource("/menu-template.yml"), cards, LAYOUT);
-        List<Map<String, Object>> elements = elements(new Yaml().load(output));
-        assertEquals("Bob's Pet: #1 {x} [y] %z", element(elements, "card_1_name").get("text"));
-        assertEquals("nexo:yes", element(elements, "card_1_item").get("itemId"));
-        assertEquals("yes", element(elements, "card_2_item").get("itemId"));
-        assertEquals("weird id: #x", element(elements, "card_3_item").get("itemId"));
-        assertEquals("Line break", element(elements, "card_4_name").get("text"));
-        assertEquals("nexo:", element(elements, "card_4_item").get("itemId"));
-    }
-
-    @Test
-    void templateWithoutCardOneIsRejected() {
-        assertThrows(IllegalArgumentException.class, () -> MenuGenerator.generate("command: /x\nelements:\n  - type: IMAGE\n    id: a\n", List.of(), LAYOUT));
-        assertThrows(IllegalArgumentException.class, () -> MenuGenerator.generate("command: /x\n", List.of(), LAYOUT));
-    }
-
-    private static void assertSameStructure(String template, String outputName) throws IOException {
+        String template = resource("/shop-original.yml");
         List<MenuGenerator.Card> cards = new ArrayList<>(cards(6));
         cards.set(2, new MenuGenerator.Card("long_name_pet", "A pet with a much longer name", "nexo:long_name_pet_icon", LABELS));
-        String output = MenuGenerator.generate(template, cards, LAYOUT);
-        writeOutput(outputName, output);
+        String output = MenuGenerator.generate(template, cards, PLAIN);
+        writeOutput("original-template-6.yml", output);
         assertFalse(new Yaml().<Map<String, Object>>load(output).isEmpty());
 
         String[] expected = template.split("\n", -1);
@@ -183,7 +227,7 @@ class MenuGeneratorTest {
                 Matcher a = POSITION.matcher(line);
                 Matcher b = POSITION.matcher(actual[i]);
                 allowed = a.matches() && b.matches() && a.group(2).equals(b.group(2));
-            } else if ((id.endsWith("_name") || id.endsWith("_price") || id.equals("title_right")) && line.startsWith("    size: ")) {
+            } else if ((id.endsWith("_name") || id.endsWith("_price")) && line.startsWith("    size: ")) {
                 Matcher a = SIZE.matcher(line);
                 Matcher b = SIZE.matcher(actual[i]);
                 allowed = a.matches() && b.matches() && a.group(2).equals(b.group(2));
@@ -199,6 +243,31 @@ class MenuGeneratorTest {
         assertTrue(differences > 0);
     }
 
+    @Test
+    void namesAndItemIdsAreYamlSafe() {
+        List<MenuGenerator.Card> cards = List.of(
+                new MenuGenerator.Card("bob", "Bob's Pet: #1 {x} [y] %z", "nexo:yes", LABELS),
+                new MenuGenerator.Card("tim", "Tim", "yes", LABELS),
+                new MenuGenerator.Card("ann", "Ann", "weird id: #x", LABELS),
+                new MenuGenerator.Card("eve", "Line\nbreak", "nexo:", LABELS));
+        String output = MenuGenerator.generate(resource("/menu-template.yml"), cards, LAYOUT);
+        List<Map<String, Object>> elements = elements(new Yaml().load(output));
+        assertEquals("Bob's Pet: #1 {x} [y] %z", element(elements, "card_1_name").get("text"));
+        assertEquals("Bob's Pet: #1 {x} [y] %z", element(elements, "card_1_name_owned").get("text"));
+        assertEquals("nexo:yes", element(elements, "card_1_item").get("itemId"));
+        assertEquals("yes", element(elements, "card_2_item").get("itemId"));
+        assertEquals("weird id: #x", element(elements, "card_3_item_owned").get("itemId"));
+        assertEquals("Line break", element(elements, "card_4_name").get("text"));
+        assertEquals("nexo:", element(elements, "card_4_item").get("itemId"));
+    }
+
+    @Test
+    void brokenTemplatesAreRejected() {
+        assertThrows(IllegalArgumentException.class, () -> MenuGenerator.generate("command: /x\nelements:\n  - type: IMAGE\n    id: a\n", List.of(), LAYOUT));
+        assertThrows(IllegalArgumentException.class, () -> MenuGenerator.generate("command: /x\n", List.of(), LAYOUT));
+        assertThrows(IllegalArgumentException.class, () -> MenuGenerator.generate("elements:\n  - type: TEXT\n    id: card_1_name\n", List.of(), LAYOUT));
+    }
+
     private static List<MenuGenerator.Card> cards(int count) {
         List<MenuGenerator.Card> cards = new ArrayList<>();
         for (int i = 1; i <= count; i++) {
@@ -207,6 +276,13 @@ class MenuGeneratorTest {
                     List.of((1000 * i) + " coins", "Equip", "Equipped")));
         }
         return cards;
+    }
+
+    private static void assertUniqueIds(List<Map<String, Object>> elements) {
+        Set<String> ids = new HashSet<>();
+        for (Map<String, Object> element : elements) {
+            assertTrue(ids.add((String) element.get("id")), "duplicate id " + element.get("id"));
+        }
     }
 
     @SuppressWarnings("unchecked")

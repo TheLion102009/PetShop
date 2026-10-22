@@ -26,12 +26,13 @@ currency-name: coins
 # Order of the pets in the menu: name, price or file (path of the MCPets file).
 sort: name
 
-# Command the player runs after /petshop has refreshed their pets. It opens the menu.
-open-command: shop
+# Command the player runs after /petshop has refreshed their pets. It opens the menu, so it has
+# to match the "command:" line of menu-template.yml.
+open-command: petsshop
 
 # The menu file PetShop writes from menu-template.yml. Relative paths start at the server folder.
-# Empty: no menu file is written.
-menu-file: plugins/GameUI/screen/shop.yml
+# GameUI names the screen after the file. Empty: no menu file is written.
+menu-file: plugins/GameUI/screen/Petsshop.yml
 # Console command run after the menu file was written. Empty: nothing is run.
 menu-reload-command: hexo-ui screen reload
 # true: rewrite the menu file on every start when its content differs.
@@ -39,6 +40,7 @@ menu-reload-command: hexo-ui screen reload
 generate-on-start: true
 
 # Card layout of the generated menu. Card N goes to column (N-1) % columns, row (N-1) / columns.
+# The scrollbar uses the heights of the scroll region and of rows_track from menu-template.yml.
 menu-layout:
   # x of the card centre for each column.
   columns: [590, 945, 1300]
@@ -46,10 +48,10 @@ menu-layout:
   first-row-y: 668
   # Distance between two rows.
   row-spacing: 240
-  # Height of the visible scroll area and of the scrollbar track.
-  view-height: 500
   # Smallest height of the scrollbar thumb.
   min-thumb: 32
+  # Edge colour of the card of the pet that is out right now. Empty: no highlight.
+  selected-color: '#FFC24A'
 
 # How players get the MCPets permission of the pets they own.
 #   attachment  PetShop adds the permissions on join and removes them on quit. Nothing is stored

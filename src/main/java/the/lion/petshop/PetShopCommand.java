@@ -15,7 +15,7 @@ final class PetShopCommand implements BasicCommand {
 
     private static final String ADMIN = "petshop.admin";
     private static final List<String> PLAYER_COMMANDS = List.of("click", "unequip");
-    private static final List<String> ALL_COMMANDS = List.of("click", "unequip", "generate", "reload", "give", "take");
+    private static final List<String> ALL_COMMANDS = List.of("click", "unequip", "status", "generate", "reload", "give", "take");
 
     private final PetShop plugin;
 
@@ -50,9 +50,11 @@ final class PetShopCommand implements BasicCommand {
                     shop.unequip(player);
                 }
             }
-            case "generate", "reload", "give", "take" -> {
+            case "status", "generate", "reload", "give", "take" -> {
                 if (!sender.hasPermission(ADMIN)) {
                     shop.tell(sender, "no-permission");
+                } else if (sub.equals("status")) {
+                    plugin.status(sender);
                 } else if (sub.equals("generate")) {
                     plugin.generateMenu(PetShop.MenuMode.FORCE, sender);
                 } else if (sub.equals("reload")) {

@@ -14,6 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.logging.Handler;
@@ -150,10 +151,19 @@ class CatalogTest {
         assertEquals("3", data.view.get("total"));
         assertEquals("", data.view.get("active"));
 
+        assertEquals("false", data.view.get("owned_dog"));
+        assertEquals("buy", data.view.get("state_dog"));
+
         data.load(Set.of("dog", "cat", "removed"), "dog", catalog);
         assertEquals("Equipped", data.view.get("label_dog"));
         assertEquals("Equip", data.view.get("label_cat"));
         assertEquals("2000 coins", data.view.get("label_zebra"));
+        assertEquals("true", data.view.get("owned_dog"));
+        assertEquals("equipped", data.view.get("state_dog"));
+        assertEquals("true", data.view.get("owned_cat"));
+        assertEquals("owned", data.view.get("state_cat"));
+        assertEquals("false", data.view.get("owned_zebra"));
+        assertEquals("buy", data.view.get("state_zebra"));
         assertEquals("2", data.view.get("owned"), "only pets in the shop count");
         assertEquals("Golden Dog", data.view.get("active"));
         assertNull(data.view.get("label_unknown"));
@@ -167,6 +177,41 @@ class CatalogTest {
         assertEquals("2000 coins", data.view.get("label_cat"));
         assertEquals("", data.view.get("active"));
         assertEquals("1", data.view.get("owned"));
+    }
+
+    @Test
+    void closestNexoIconIsFoundByName() {
+        List<Catalog.Entry> cubees = new ArrayList<>();
+        for (String id : List.of("arctic_witch", "earth", "ebony_cat", "forest_keeper", "gothic_hag", "jupiter", "mars", "meowgician",
+                "pluto", "saturn", "skelly_warlock", "soul_weaver", "sun", "uranus", "venus", "wishing_teddy")) {
+            String name = String.join(" ", List.of(id.split("_"))) + " cubee";
+            cubees.add(new Catalog.Entry("cubee-" + id, "cubee-" + id, "mcpets.cubee." + id, name, 2000, "", List.of(), true, id + ".yml", "2000 coins", null));
+        }
+        Map<String, Integer> frequency = Catalog.wordFrequency(cubees);
+        List<String> nexo = List.of("cubees-icon-cat", "cubees-cat", "cat_statue", "cubees-icon-jupiter", "cubees-icon-witch",
+                "cubees-icon-meowgician", "cubees-icon-forestkeeper", "cubees-icon-mars", "random_sword", "cubees-icon-sun");
+        assertEquals("cubees-icon-cat", Catalog.closestIcon(entry(cubees, "cubee-ebony_cat"), frequency, nexo));
+        assertEquals("cubees-icon-jupiter", Catalog.closestIcon(entry(cubees, "cubee-jupiter"), frequency, nexo));
+        assertEquals("cubees-icon-witch", Catalog.closestIcon(entry(cubees, "cubee-arctic_witch"), frequency, nexo));
+        assertEquals("cubees-icon-meowgician", Catalog.closestIcon(entry(cubees, "cubee-meowgician"), frequency, nexo));
+        assertEquals("cubees-icon-forestkeeper", Catalog.closestIcon(entry(cubees, "cubee-forest_keeper"), frequency, nexo));
+        assertEquals("cubees-icon-mars", Catalog.closestIcon(entry(cubees, "cubee-mars"), frequency, nexo));
+        assertEquals("cubees-icon-sun", Catalog.closestIcon(entry(cubees, "cubee-sun"), frequency, nexo));
+        assertNull(Catalog.closestIcon(entry(cubees, "cubee-earth"), frequency, nexo), "nothing shares a word only this pet has");
+        assertNull(Catalog.closestIcon(entry(cubees, "cubee-pluto"), frequency, List.of("pluto_a", "pluto_b")), "a tie gives no result");
+        assertEquals(List.of("cubee", "icon", "cat"), List.copyOf(Catalog.tokens("Cubees-Icon-Cat")));
+    }
+
+    @Test
+    void iconHintsComeFromTheMcpetsIcon() throws InvalidConfigurationException {
+        YamlConfiguration yml = new YamlConfiguration();
+        yml.loadFromString("Icon:\n  NexoId: my_icon\n  ItemsAdder: cubees:icon-cat\n  ItemModel: 'nexo:item/cubees/icon_cat'\n");
+        assertEquals(List.of("my_icon", "cubees-icon-cat", "cubees_icon-cat", "icon-cat", "nexo-item/cubees/icon_cat",
+                "nexo_item/cubees/icon_cat", "icon_cat"), Catalog.iconHints(yml));
+    }
+
+    private static Catalog.Entry entry(List<Catalog.Entry> entries, String key) {
+        return entries.stream().filter(e -> e.key().equals(key)).findFirst().orElseThrow();
     }
 
     @Test

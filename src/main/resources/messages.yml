@@ -8,7 +8,7 @@ purchase-success: '<prefix><green>You bought <white><pet></white> for <gold><pri
 not-enough-coins: '<prefix><red>You need <gold><price> <currency></gold> for <white><pet></white>. You have <gold><balance></gold>.'
 already-owned: '<prefix><yellow>You already own <white><pet></white>.'
 database-unavailable: '<prefix><red>The pet database is not reachable right now. Please try again later.'
-data-unavailable: '<prefix><red>Your pets could not be loaded. Open the shop again to retry.'
+data-unavailable: '<prefix><red>Your pets could not be loaded right now. Please try again in a moment.'
 equipped: '<prefix><green><white><pet></white> is now following you.'
 equip-failed: '<prefix><red><white><pet></white> could not be summoned right now.'
 unequipped: '<prefix><yellow>Your pet was sent home.'
@@ -17,7 +17,8 @@ error: '<prefix><red>Something went wrong. Please try again.'
 
 player-only: '<prefix><red>Only players can use this.'
 no-permission: '<prefix><red>You are not allowed to do that.'
-usage: '<prefix><gray>/petshop [click <pet> | unequip | generate | reload | give <player> <pet> | take <player> <pet>]'
+usage: '<prefix><gray>/petshop [click <pet> | unequip | status | generate | reload | give <player> <pet> | take <player> <pet>]'
+status: "<prefix><gray>Database: <white><database></white>\n<prefix><gray>Pets in the shop: <white><pets></white>, without Nexo icon: <white><fallback></white>\n<prefix><gray>Nexo: <white><nexo></white>, MCPets: <white><mcpets></white>, PlaceholderAPI: <white><papi></white>\n<prefix><gray>Menu file: <white><file></white>"
 unknown-pet: '<prefix><red>Unknown pet: <white><pet></white>'
 unknown-player: '<prefix><red>Unknown player: <white><player></white>'
 reloaded: '<prefix><green>Reloaded. <white><count></white> pets are in the shop.'

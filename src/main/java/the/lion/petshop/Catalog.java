@@ -9,12 +9,15 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -22,26 +25,51 @@ import java.util.stream.Stream;
 /** Immutable list of shop pets. A new instance replaces the old one atomically. */
 final class Catalog {
 
-    record Entry(String key, String mcpetsId, String permission, String name, int price, String nexoItem, String nexoHint,
-                 boolean enabled, String file, String labelKey, String priceLabel, String itemId) {
+    /** {@code hints} are Nexo ids derived from the icon of the MCPets file (NexoId, ItemsAdder, ItemModel). */
+    record Entry(String key, String mcpetsId, String permission, String name, int price, String nexoItem, List<String> hints,
+                 boolean enabled, String file, String priceLabel, String itemId) {
 
         Entry withItemId(String id) {
-            return new Entry(key, mcpetsId, permission, name, price, nexoItem, nexoHint, enabled, file, labelKey, priceLabel, id);
+            return new Entry(key, mcpetsId, permission, name, price, nexoItem, hints, enabled, file, priceLabel, id);
+        }
+
+        String labelKey() {
+            return "label_" + key;
+        }
+
+        String ownedKey() {
+            return "owned_" + key;
+        }
+
+        String stateKey() {
+            return "state_" + key;
         }
 
         List<String> iconCandidates() {
             if (!nexoItem.isEmpty()) {
                 return List.of(nexoItem);
             }
-            List<String> candidates = new ArrayList<>(5);
-            if (!nexoHint.isEmpty()) {
-                candidates.add(nexoHint);
-            }
+            Set<String> candidates = new LinkedHashSet<>(hints);
             candidates.add(key);
             candidates.add(key + "_icon");
             candidates.add("pet_" + key);
             candidates.add(key + "_pet");
-            return candidates;
+            return List.copyOf(candidates);
+        }
+
+        /** Words of the id and the name, plus joined neighbours of the id ("forest_keeper" also gives "forestkeeper"). */
+        Set<String> words() {
+            List<String> idWords = List.copyOf(tokens(key));
+            Set<String> words = new LinkedHashSet<>(idWords);
+            words.addAll(tokens(name));
+            for (int from = 0; from < idWords.size(); from++) {
+                StringBuilder joined = new StringBuilder(idWords.get(from));
+                for (int to = from + 1; to < idWords.size(); to++) {
+                    joined.append(idWords.get(to));
+                    words.add(joined.toString());
+                }
+            }
+            return words;
         }
     }
 
@@ -77,6 +105,8 @@ final class Catalog {
                 visibleList.add(entry);
                 visibleMap.put(entry.key(), entry);
                 base.put(entry.labelKey(), entry.priceLabel());
+                base.put(entry.ownedKey(), "false");
+                base.put(entry.stateKey(), "buy");
             }
         }
         base.put("total", Integer.toString(visibleList.size()));
@@ -155,8 +185,8 @@ final class Catalog {
             String name = clean(pets.getString(path + ".name", ""));
             int price = Math.max(0, pets.getInt(path + ".price", settings.defaultPrice));
             found.put(key, new Entry(key, id, permission, name.isEmpty() ? mcpetsName : name, price,
-                    pets.getString(path + ".nexo-item", "").trim(), yml.getString("Icon.NexoId", "").trim(),
-                    pets.getBoolean(path + ".enabled", true), relative, "label_" + key, settings.priceLabel(price), null));
+                    pets.getString(path + ".nexo-item", "").trim(), iconHints(yml),
+                    pets.getBoolean(path + ".enabled", true), relative, settings.priceLabel(price), null));
         }
         if (!withoutPermission.isEmpty()) {
             log.warning("Skipped " + withoutPermission.size() + " MCPets pet(s) without a Permission field: " + String.join(", ", withoutPermission));
@@ -188,6 +218,92 @@ final class Catalog {
 
     static boolean validKey(String key) {
         return KEY.matcher(key).matches();
+    }
+
+    /** Nexo ids the icon of an MCPets file points at: NexoId as written, ItemsAdder and ItemModel "a:b" as a-b, a_b and b. */
+    static List<String> iconHints(YamlConfiguration yml) {
+        Set<String> hints = new LinkedHashSet<>();
+        String nexoId = yml.getString("Icon.NexoId", "").trim();
+        if (!nexoId.isEmpty()) {
+            hints.add(nexoId);
+        }
+        for (String path : List.of("Icon.ItemsAdder", "Icon.ItemModel")) {
+            String value = yml.getString(path, "").trim().toLowerCase(Locale.ROOT);
+            int colon = value.indexOf(':');
+            if (colon > 0 && colon < value.length() - 1) {
+                String namespace = value.substring(0, colon);
+                String id = value.substring(colon + 1);
+                hints.add(namespace + "-" + id);
+                hints.add(namespace + "_" + id);
+                hints.add(id.substring(id.lastIndexOf('/') + 1));
+            } else if (!value.isEmpty()) {
+                hints.add(value);
+            }
+        }
+        return List.copyOf(hints);
+    }
+
+    /** Lower-case words of an id or name; a plural s is dropped so "cubees" matches "cubee". */
+    static Set<String> tokens(String text) {
+        Set<String> words = new LinkedHashSet<>();
+        for (String word : text.toLowerCase(Locale.ROOT).split("[^a-z0-9]+")) {
+            if (word.length() > 3 && word.endsWith("s") && !word.endsWith("ss")) {
+                word = word.substring(0, word.length() - 1);
+            }
+            if (!word.isEmpty()) {
+                words.add(word);
+            }
+        }
+        return words;
+    }
+
+    /** How many pets use each word. */
+    static Map<String, Integer> wordFrequency(List<Entry> entries) {
+        Map<String, Integer> frequency = new HashMap<>();
+        for (Entry entry : entries) {
+            for (String word : entry.words()) {
+                frequency.merge(word, 1, Integer::sum);
+            }
+        }
+        return frequency;
+    }
+
+    /**
+     * The Nexo item whose name fits the pet best, such as "cubees-icon-cat" for "cubee-ebony_cat". It must share a word
+     * no other pet has, an "icon" in the name counts extra, and a tie gives no result.
+     */
+    static String closestIcon(Entry entry, Map<String, Integer> frequency, Collection<String> nexoIds) {
+        Set<String> words = entry.words();
+        String best = null;
+        double bestScore = 0;
+        double secondScore = 0;
+        for (String nexoId : nexoIds) {
+            Set<String> itemWords = tokens(nexoId);
+            double score = 0;
+            boolean distinctive = false;
+            int unmatched = 0;
+            for (String word : itemWords) {
+                if (words.contains(word)) {
+                    int uses = Math.max(1, frequency.getOrDefault(word, 1));
+                    score += 1.0 / uses;
+                    distinctive |= uses == 1;
+                } else if (!word.equals("icon")) {
+                    unmatched++;
+                }
+            }
+            if (!distinctive) {
+                continue;
+            }
+            score += (itemWords.contains("icon") ? 0.5 : 0) - 0.01 * unmatched;
+            if (score > bestScore) {
+                secondScore = bestScore;
+                bestScore = score;
+                best = nexoId;
+            } else if (score > secondScore) {
+                secondScore = score;
+            }
+        }
+        return best != null && bestScore - secondScore > 1e-9 ? best : null;
     }
 
     static String clean(String raw) {
