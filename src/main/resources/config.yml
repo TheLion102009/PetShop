@@ -1,0 +1,87 @@
+# PetShop configuration.
+# Missing keys are added back with their default value on every start and on /petshop reload.
+
+# MariaDB that holds owned pets and the active pet. Point every server of the network at the
+# same database so a pet bought on one server is owned on all of them.
+database:
+  host: localhost
+  port: 3306
+  database: minecraft
+  user: minecraft
+  password: ''
+  # Only letters, digits and underscores. Tables: <prefix>owned and <prefix>player.
+  table-prefix: petshop_
+  # true: encrypted connection without certificate check (sslMode=trust).
+  # For a verified connection set sslMode: verify-full under properties.
+  use-ssl: false
+  # Extra MariaDB Connector/J properties. They override the built-in ones
+  # (connectTimeout: 3000, socketTimeout: 10000, sslMode).
+  properties: {}
+
+# Price of a pet that has no price of its own in pets.yml.
+default-price: 2000
+# Shown after the price in the menu, for example "2000 coins".
+currency-name: coins
+
+# Order of the pets in the menu: name, price or file (path of the MCPets file).
+sort: name
+
+# Command the player runs after /petshop has refreshed their pets. It opens the menu.
+open-command: shop
+
+# The menu file PetShop writes from menu-template.yml. Relative paths start at the server folder.
+# Empty: no menu file is written.
+menu-file: plugins/GameUI/screen/shop.yml
+# Console command run after the menu file was written. Empty: nothing is run.
+menu-reload-command: hexo-ui screen reload
+# true: rewrite the menu file on every start when its content differs.
+# false: only write it on start when it is missing. Later changes to the pets still rewrite it.
+generate-on-start: true
+
+# Card layout of the generated menu. Card N goes to column (N-1) % columns, row (N-1) / columns.
+menu-layout:
+  # x of the card centre for each column.
+  columns: [590, 945, 1300]
+  # y of the card centre in the first row.
+  first-row-y: 668
+  # Distance between two rows.
+  row-spacing: 240
+  # Height of the visible scroll area and of the scrollbar track.
+  view-height: 500
+  # Smallest height of the scrollbar thumb.
+  min-thumb: 32
+
+# How players get the MCPets permission of the pets they own.
+#   attachment  PetShop adds the permissions on join and removes them on quit. Nothing is stored
+#               in a permission plugin; the database is the only source.
+#   command     PetShop runs grant-command / revoke-command as the console, for example for LuckPerms.
+grant-mode: attachment
+grant-command: 'lp user {player} permission set {permission} true'
+revoke-command: 'lp user {player} permission unset {permission}'
+
+# How pets are summoned and sent home.
+#   api      MCPets Java API (MCPetsAPI). Falls back to the commands below if MCPets is missing
+#            or its API does not match.
+#   command  always the console commands below.
+mcpets-hook: api
+# Placeholders: {player} name, {uuid} UUID, {pet} MCPets pet id.
+equip-command: 'mcpets spawn {pet} {player} false -s'
+unequip-command: 'mcpets revoke {player}'
+# true: summon the active pet again shortly after join. MCPets already does this itself
+# with its Velocity/MySQL sync, so leave it off there.
+restore-active-on-join: false
+
+# Check the MCPets pet files every 5 minutes (by modification time) and rescan when they changed.
+auto-rescan: true
+
+# itemId written into the menu for a card. {id} = Nexo item id, {material} = fallback-material.
+item-format-nexo: 'nexo:{id}'
+item-format-material: '{material}'
+# Icon for pets without a Nexo item.
+fallback-material: PLAYER_HEAD
+
+sounds:
+  enabled: true
+  purchase: entity.player.levelup
+  equip: entity.experience_orb.pickup
+  error: entity.villager.no

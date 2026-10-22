@@ -1,0 +1,493 @@
+command: /shop
+hideHud: true
+hideCrosshair: true
+cursorMode: FROZEN
+elements:
+  - type: IMAGE
+    id: panel_edge
+    sprite: rect.png
+    color: '#6B7894'
+    position: { x: 960, y: 540 }
+    size: { width: 1128, height: 708 }
+    layer: 1
+    alpha: 1
+    corner: { shape: CUT, size: 9 }
+  - type: IMAGE
+    id: panel
+    sprite: rect.png
+    color: '#000000'
+    position: { x: 960, y: 540 }
+    size: { width: 1120, height: 700 }
+    layer: 2
+    alpha: 0.922
+    corner: { shape: CUT, size: 8 }
+  - type: TEXT
+    id: title
+    text: Server shop
+    spriteFont: minecraft
+    glyphScale: 0.5
+    color: '#F2F4F8'
+    position: { x: 428, y: 854 }
+    size: { width: 256, height: 32 }
+    layer: 4
+    anchor: { x: LEFT }
+    textAlignment: LEFT
+  - type: TEXT
+    id: title_right
+    text: Click an item to buy it
+    spriteFont: minecraft
+    glyphScale: 0.25
+    color: '#B4B8C2'
+    position: { x: 1492, y: 854 }
+    size: { width: 212, height: 16 }
+    layer: 4
+    anchor: { x: RIGHT }
+    textAlignment: RIGHT
+  - type: IMAGE
+    id: title_rule
+    sprite: rect.png
+    color: '#4A5263'
+    position: { x: 960, y: 822 }
+    size: { width: 1080, height: 2 }
+    layer: 3
+  - type: IMAGE
+    id: card_1_edge
+    sprite: rect.png
+    color: '#5A6273'
+    position: { x: 595, y: 668 }
+    size: { width: 338, height: 228 }
+    layer: 3
+    corner: { shape: CUT, size: 9 }
+    timelines:
+      grow:
+        SCALE:
+          - { size: { width: 354, height: 241 }, atTick: 3 }
+      reset:
+        SCALE:
+          - { size: { width: 338, height: 228 }, atTick: 3 }
+  - type: IMAGE
+    id: card_1
+    sprite: rect.png
+    color: '#161820'
+    position: { x: 595, y: 668 }
+    size: { width: 330, height: 220 }
+    layer: 4
+    corner: { shape: CUT, size: 8 }
+    actions:
+      - { type: RUN_COMMAND, target: shop buy diamond_sword }
+    timelines:
+      grow:
+        SCALE:
+          - { size: { width: 346, height: 233 }, atTick: 3 }
+      reset:
+        SCALE:
+          - { size: { width: 330, height: 220 }, atTick: 3 }
+    hoverActions:
+      - { type: PLAY_CLIP, clip: grow }
+      - { type: PLAY_CLIP, element: card_1_edge, clip: grow }
+    unhoverActions:
+      - { type: PLAY_CLIP, clip: reset }
+      - { type: PLAY_CLIP, element: card_1_edge, clip: reset }
+  - type: ITEM
+    id: card_1_item
+    itemId: DIAMOND_SWORD
+    position: { x: 595, y: 704 }
+    size: { width: 88, height: 88 }
+    layer: 6
+  - type: TEXT
+    id: card_1_name
+    text: Diamond Sword
+    spriteFont: minecraft
+    glyphScale: 0.375
+    color: '#F2F4F8'
+    position: { x: 595, y: 622 }
+    size: { width: 216, height: 24 }
+    layer: 6
+  - type: TEXT
+    id: card_1_price
+    text: 250 coins
+    spriteFont: minecraft
+    glyphScale: 0.375
+    color: '#FFC24A'
+    position: { x: 595, y: 590 }
+    size: { width: 144, height: 24 }
+    layer: 6
+  - type: IMAGE
+    id: card_2_edge
+    sprite: rect.png
+    color: '#5A6273'
+    position: { x: 960, y: 668 }
+    size: { width: 338, height: 228 }
+    layer: 3
+    corner: { shape: CUT, size: 9 }
+    timelines:
+      grow:
+        SCALE:
+          - { size: { width: 354, height: 241 }, atTick: 3 }
+      reset:
+        SCALE:
+          - { size: { width: 338, height: 228 }, atTick: 3 }
+  - type: IMAGE
+    id: card_2
+    sprite: rect.png
+    color: '#161820'
+    position: { x: 960, y: 668 }
+    size: { width: 330, height: 220 }
+    layer: 4
+    corner: { shape: CUT, size: 8 }
+    actions:
+      - { type: RUN_COMMAND, target: shop buy golden_apple }
+    timelines:
+      grow:
+        SCALE:
+          - { size: { width: 346, height: 233 }, atTick: 3 }
+      reset:
+        SCALE:
+          - { size: { width: 330, height: 220 }, atTick: 3 }
+    hoverActions:
+      - { type: PLAY_CLIP, clip: grow }
+      - { type: PLAY_CLIP, element: card_2_edge, clip: grow }
+    unhoverActions:
+      - { type: PLAY_CLIP, clip: reset }
+      - { type: PLAY_CLIP, element: card_2_edge, clip: reset }
+  - type: ITEM
+    id: card_2_item
+    itemId: GOLDEN_APPLE
+    position: { x: 960, y: 704 }
+    size: { width: 88, height: 88 }
+    layer: 6
+  - type: TEXT
+    id: card_2_name
+    text: Golden Apple
+    spriteFont: minecraft
+    glyphScale: 0.375
+    color: '#F2F4F8'
+    position: { x: 960, y: 622 }
+    size: { width: 192, height: 24 }
+    layer: 6
+  - type: TEXT
+    id: card_2_price
+    text: 40 coins
+    spriteFont: minecraft
+    glyphScale: 0.375
+    color: '#FFC24A'
+    position: { x: 960, y: 590 }
+    size: { width: 126, height: 24 }
+    layer: 6
+  - type: IMAGE
+    id: card_3_edge
+    sprite: rect.png
+    color: '#5A6273'
+    position: { x: 1325, y: 668 }
+    size: { width: 338, height: 228 }
+    layer: 3
+    corner: { shape: CUT, size: 9 }
+    timelines:
+      grow:
+        SCALE:
+          - { size: { width: 354, height: 241 }, atTick: 3 }
+      reset:
+        SCALE:
+          - { size: { width: 338, height: 228 }, atTick: 3 }
+  - type: IMAGE
+    id: card_3
+    sprite: rect.png
+    color: '#161820'
+    position: { x: 1325, y: 668 }
+    size: { width: 330, height: 220 }
+    layer: 4
+    corner: { shape: CUT, size: 8 }
+    actions:
+      - { type: RUN_COMMAND, target: shop buy ender_pearl }
+    timelines:
+      grow:
+        SCALE:
+          - { size: { width: 346, height: 233 }, atTick: 3 }
+      reset:
+        SCALE:
+          - { size: { width: 330, height: 220 }, atTick: 3 }
+    hoverActions:
+      - { type: PLAY_CLIP, clip: grow }
+      - { type: PLAY_CLIP, element: card_3_edge, clip: grow }
+    unhoverActions:
+      - { type: PLAY_CLIP, clip: reset }
+      - { type: PLAY_CLIP, element: card_3_edge, clip: reset }
+  - type: ITEM
+    id: card_3_item
+    itemId: ENDER_PEARL
+    position: { x: 1325, y: 704 }
+    size: { width: 88, height: 88 }
+    layer: 6
+  - type: TEXT
+    id: card_3_name
+    text: Ender Pearls x4
+    spriteFont: minecraft
+    glyphScale: 0.375
+    color: '#F2F4F8'
+    position: { x: 1325, y: 622 }
+    size: { width: 249, height: 24 }
+    layer: 6
+  - type: TEXT
+    id: card_3_price
+    text: 60 coins
+    spriteFont: minecraft
+    glyphScale: 0.375
+    color: '#FFC24A'
+    position: { x: 1325, y: 590 }
+    size: { width: 126, height: 24 }
+    layer: 6
+  - type: IMAGE
+    id: card_4_edge
+    sprite: rect.png
+    color: '#5A6273'
+    position: { x: 595, y: 428 }
+    size: { width: 338, height: 228 }
+    layer: 3
+    corner: { shape: CUT, size: 9 }
+    timelines:
+      grow:
+        SCALE:
+          - { size: { width: 354, height: 241 }, atTick: 3 }
+      reset:
+        SCALE:
+          - { size: { width: 338, height: 228 }, atTick: 3 }
+  - type: IMAGE
+    id: card_4
+    sprite: rect.png
+    color: '#161820'
+    position: { x: 595, y: 428 }
+    size: { width: 330, height: 220 }
+    layer: 4
+    corner: { shape: CUT, size: 8 }
+    actions:
+      - { type: RUN_COMMAND, target: shop buy iron_chestplate }
+    timelines:
+      grow:
+        SCALE:
+          - { size: { width: 346, height: 233 }, atTick: 3 }
+      reset:
+        SCALE:
+          - { size: { width: 330, height: 220 }, atTick: 3 }
+    hoverActions:
+      - { type: PLAY_CLIP, clip: grow }
+      - { type: PLAY_CLIP, element: card_4_edge, clip: grow }
+    unhoverActions:
+      - { type: PLAY_CLIP, clip: reset }
+      - { type: PLAY_CLIP, element: card_4_edge, clip: reset }
+  - type: ITEM
+    id: card_4_item
+    itemId: IRON_CHESTPLATE
+    position: { x: 595, y: 464 }
+    size: { width: 88, height: 88 }
+    layer: 6
+  - type: TEXT
+    id: card_4_name
+    text: Iron Chestplate
+    spriteFont: minecraft
+    glyphScale: 0.375
+    color: '#F2F4F8'
+    position: { x: 595, y: 382 }
+    size: { width: 237, height: 24 }
+    layer: 6
+  - type: TEXT
+    id: card_4_price
+    text: 120 coins
+    spriteFont: minecraft
+    glyphScale: 0.375
+    color: '#FFC24A'
+    position: { x: 595, y: 350 }
+    size: { width: 144, height: 24 }
+    layer: 6
+  - type: IMAGE
+    id: card_5_edge
+    sprite: rect.png
+    color: '#5A6273'
+    position: { x: 960, y: 428 }
+    size: { width: 338, height: 228 }
+    layer: 3
+    corner: { shape: CUT, size: 9 }
+    timelines:
+      grow:
+        SCALE:
+          - { size: { width: 354, height: 241 }, atTick: 3 }
+      reset:
+        SCALE:
+          - { size: { width: 338, height: 228 }, atTick: 3 }
+  - type: IMAGE
+    id: card_5
+    sprite: rect.png
+    color: '#161820'
+    position: { x: 960, y: 428 }
+    size: { width: 330, height: 220 }
+    layer: 4
+    corner: { shape: CUT, size: 8 }
+    actions:
+      - { type: RUN_COMMAND, target: shop buy experience_bottle }
+    timelines:
+      grow:
+        SCALE:
+          - { size: { width: 346, height: 233 }, atTick: 3 }
+      reset:
+        SCALE:
+          - { size: { width: 330, height: 220 }, atTick: 3 }
+    hoverActions:
+      - { type: PLAY_CLIP, clip: grow }
+      - { type: PLAY_CLIP, element: card_5_edge, clip: grow }
+    unhoverActions:
+      - { type: PLAY_CLIP, clip: reset }
+      - { type: PLAY_CLIP, element: card_5_edge, clip: reset }
+  - type: ITEM
+    id: card_5_item
+    itemId: EXPERIENCE_BOTTLE
+    position: { x: 960, y: 464 }
+    size: { width: 88, height: 88 }
+    layer: 6
+  - type: TEXT
+    id: card_5_name
+    text: XP Bottles x8
+    spriteFont: minecraft
+    glyphScale: 0.375
+    color: '#F2F4F8'
+    position: { x: 960, y: 382 }
+    size: { width: 201, height: 24 }
+    layer: 6
+  - type: TEXT
+    id: card_5_price
+    text: 30 coins
+    spriteFont: minecraft
+    glyphScale: 0.375
+    color: '#FFC24A'
+    position: { x: 960, y: 350 }
+    size: { width: 126, height: 24 }
+    layer: 6
+  - type: IMAGE
+    id: card_6_edge
+    sprite: rect.png
+    color: '#5A6273'
+    position: { x: 1325, y: 428 }
+    size: { width: 338, height: 228 }
+    layer: 3
+    corner: { shape: CUT, size: 9 }
+    timelines:
+      grow:
+        SCALE:
+          - { size: { width: 354, height: 241 }, atTick: 3 }
+      reset:
+        SCALE:
+          - { size: { width: 338, height: 228 }, atTick: 3 }
+  - type: IMAGE
+    id: card_6
+    sprite: rect.png
+    color: '#161820'
+    position: { x: 1325, y: 428 }
+    size: { width: 330, height: 220 }
+    layer: 4
+    corner: { shape: CUT, size: 8 }
+    actions:
+      - { type: RUN_COMMAND, target: shop buy elytra }
+    timelines:
+      grow:
+        SCALE:
+          - { size: { width: 346, height: 233 }, atTick: 3 }
+      reset:
+        SCALE:
+          - { size: { width: 330, height: 220 }, atTick: 3 }
+    hoverActions:
+      - { type: PLAY_CLIP, clip: grow }
+      - { type: PLAY_CLIP, element: card_6_edge, clip: grow }
+    unhoverActions:
+      - { type: PLAY_CLIP, clip: reset }
+      - { type: PLAY_CLIP, element: card_6_edge, clip: reset }
+  - type: ITEM
+    id: card_6_item
+    itemId: ELYTRA
+    position: { x: 1325, y: 464 }
+    size: { width: 88, height: 88 }
+    layer: 6
+  - type: TEXT
+    id: card_6_name
+    text: Elytra
+    spriteFont: minecraft
+    glyphScale: 0.375
+    color: '#F2F4F8'
+    position: { x: 1325, y: 382 }
+    size: { width: 93, height: 24 }
+    layer: 6
+  - type: TEXT
+    id: card_6_price
+    text: 900 coins
+    spriteFont: minecraft
+    glyphScale: 0.375
+    color: '#FFC24A'
+    position: { x: 1325, y: 350 }
+    size: { width: 144, height: 24 }
+    layer: 6
+  - type: TEXT
+    id: balance_label
+    text: Balance
+    spriteFont: minecraft
+    glyphScale: 0.375
+    color: '#B4B8C2'
+    position: { x: 430, y: 248 }
+    size: { width: 117, height: 24 }
+    layer: 4
+    anchor: { x: LEFT }
+    textAlignment: LEFT
+  - type: TEXT
+    id: balance
+    text: '%vault_eco_balance_fixed% coins'
+    spriteFont: minecraft
+    glyphScale: 0.375
+    color: '#FFC24A'
+    position: { x: 559, y: 248 }
+    size: { width: 501, height: 24 }
+    layer: 4
+    anchor: { x: LEFT }
+    textAlignment: LEFT
+  - type: IMAGE
+    id: btn_close_edge
+    sprite: rect.png
+    color: '#5A6273'
+    position: { x: 1400, y: 248 }
+    size: { width: 188, height: 60 }
+    layer: 3
+    corner: { shape: CUT, size: 5 }
+    timelines:
+      grow:
+        SCALE:
+          - { size: { width: 204, height: 64 }, atTick: 3 }
+      reset:
+        SCALE:
+          - { size: { width: 188, height: 60 }, atTick: 3 }
+  - type: IMAGE
+    id: btn_close
+    sprite: rect.png
+    color: '#161820'
+    position: { x: 1400, y: 248 }
+    size: { width: 180, height: 52 }
+    layer: 4
+    corner: { shape: CUT, size: 4 }
+    actions:
+      - { type: CLOSE, target: shop }
+    timelines:
+      grow:
+        SCALE:
+          - { size: { width: 196, height: 56 }, atTick: 3 }
+      reset:
+        SCALE:
+          - { size: { width: 180, height: 52 }, atTick: 3 }
+    hoverActions:
+      - { type: PLAY_CLIP, clip: grow }
+      - { type: PLAY_CLIP, element: btn_close_edge, clip: grow }
+    unhoverActions:
+      - { type: PLAY_CLIP, clip: reset }
+      - { type: PLAY_CLIP, element: btn_close_edge, clip: reset }
+  - type: TEXT
+    id: btn_close_label
+    text: Close
+    spriteFont: minecraft
+    glyphScale: 0.375
+    color: '#F2F4F8'
+    position: { x: 1400, y: 248 }
+    size: { width: 81, height: 24 }
+    layer: 6

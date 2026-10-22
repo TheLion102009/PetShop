@@ -1,0 +1,25 @@
+name: PetShop
+version: '${version}'
+main: the.lion.petshop.PetShop
+api-version: '1.21'
+description: Shop and wardrobe for MCPets pets, paid with PlayerPoints and stored in MariaDB.
+authors: [ thelion ]
+website: https://site.lion-craft.net
+
+depend:
+  - PlayerPoints
+softdepend:
+  - PlaceholderAPI
+  - Nexo
+  - MCPets
+
+libraries:
+  - org.mariadb.jdbc:mariadb-java-client:3.5.11
+
+permissions:
+  petshop.use:
+    description: Open the pet shop, buy, equip and unequip pets.
+    default: true
+  petshop.admin:
+    description: Generate the menu, reload, give and take pets.
+    default: op

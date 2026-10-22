@@ -1,0 +1,36 @@
+# PetShop messages in MiniMessage format (https://docs.advntr.dev/minimessage/format).
+# An empty text ('') sends nothing.
+# Placeholders: <prefix>, <pet>, <price>, <currency>, <balance>, <player>, <count>, <file>, <reason>
+
+prefix: '<dark_gray>[<gold>PetShop</gold>]</dark_gray> '
+
+purchase-success: '<prefix><green>You bought <white><pet></white> for <gold><price> <currency></gold>.'
+not-enough-coins: '<prefix><red>You need <gold><price> <currency></gold> for <white><pet></white>. You have <gold><balance></gold>.'
+already-owned: '<prefix><yellow>You already own <white><pet></white>.'
+database-unavailable: '<prefix><red>The pet database is not reachable right now. Please try again later.'
+data-unavailable: '<prefix><red>Your pets could not be loaded. Open the shop again to retry.'
+equipped: '<prefix><green><white><pet></white> is now following you.'
+equip-failed: '<prefix><red><white><pet></white> could not be summoned right now.'
+unequipped: '<prefix><yellow>Your pet was sent home.'
+no-active-pet: '<prefix><gray>You have no active pet.'
+error: '<prefix><red>Something went wrong. Please try again.'
+
+player-only: '<prefix><red>Only players can use this.'
+no-permission: '<prefix><red>You are not allowed to do that.'
+usage: '<prefix><gray>/petshop [click <pet> | unequip | generate | reload | give <player> <pet> | take <player> <pet>]'
+unknown-pet: '<prefix><red>Unknown pet: <white><pet></white>'
+unknown-player: '<prefix><red>Unknown player: <white><player></white>'
+reloaded: '<prefix><green>Reloaded. <white><count></white> pets are in the shop.'
+generated: '<prefix><green>Menu written to <white><file></white>.'
+generate-failed: '<prefix><red>The menu was not written: <white><reason></white>'
+give-success: '<prefix><green><white><player></white> now owns <white><pet></white>.'
+give-already: '<prefix><yellow><white><player></white> already owns <white><pet></white>.'
+take-success: '<prefix><green><white><pet></white> was taken from <white><player></white>.'
+take-not-owned: '<prefix><yellow><white><player></white> does not own <white><pet></white>.'
+
+# Texts of %petshop_label_<pet>%. The menu draws them as plain text (no MiniMessage, tags are
+# removed); the colour comes from the menu element. {price} and {currency} work in "price".
+labels:
+  price: '{price} {currency}'
+  equip: 'Equip'
+  equipped: 'Equipped'

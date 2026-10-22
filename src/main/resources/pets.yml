@@ -1,0 +1,12 @@
+# PetShop pets. Filled automatically from plugins/MCPets/Pets/**/*.yml: every pet that is not
+# listed yet is added with default values. Entries that exist are never changed by PetShop.
+#
+#   name       Name shown in the menu. Empty: Icon.Name of the MCPets file.
+#   price      Price in PlayerPoints.
+#   nexo-item  Nexo item id used as icon. Empty: automatic, PetShop tries Icon.NexoId of the
+#              MCPets file, then <id>, <id>_icon, pet_<id>, <id>_pet.
+#   enabled    false: hidden in the shop and cannot be bought. Owners keep the pet.
+#
+# Pets whose MCPets file was removed stay listed here but are not shown. Ownership in the
+# database is kept. Apply changes with /petshop reload.
+pets: {}
